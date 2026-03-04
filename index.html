@@ -3,258 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Depression Survival – Debug Edition</title>
+  <title>Depression Survival – Play Button Fixed</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background: #111;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 10px;
-    }
+    body { background:#0f0b07; color:#e8d5b5; font-family:Arial,sans-serif; margin:0; padding:12px; }
     .card {
-      background: #ffe8c0;
-      border: 4px solid brown;
-      border-radius: 12px;
-      padding: 16px;
-      margin: 8px;
-      min-height: 220px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-      user-select: none;
-      touch-action: manipulation;
+      background:#ffe; border:3px solid #8b4513; border-radius:10px; padding:16px; margin:10px;
+      min-height:200px; cursor:pointer; user-select:none; touch-action:manipulation;
     }
-    .card:hover, .card:active {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px yellow;
+    .card:active { background:#ffd; transform:scale(1.03); }
+    #modal { 
+      position:fixed; inset:0; background:rgba(0,0,0,0.8); display:none; 
+      align-items:center; justify-content:center; z-index:1000;
     }
-    #player-hand {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+    #modal-box {
+      background:#ffe; border:5px solid #8b4513; border-radius:12px;
+      width:90%; max-width:420px; padding:24px; color:#333;
     }
-    #modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-    #modal-content {
-      background: #ffe8c0;
-      border: 5px solid brown;
-      border-radius: 12px;
-      max-width: 90%;
-      width: 420px;
-      padding: 20px;
-      color: #222;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 1.1rem;
-      margin: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    .green { background: #28a745; color: white; }
-    .red    { background: #dc3545; color: white; }
+    button { padding:12px 28px; font-size:1.1rem; border-radius:8px; cursor:pointer; margin:8px; }
+    .play-btn { background:#28a745; color:white; }
+    .close-btn { background:#6c757d; color:white; }
     #log {
-      background: #222;
-      color: #0f0;
-      font-family: monospace;
-      padding: 12px;
-      height: 180px;
-      overflow-y: auto;
-      margin: 12px 0;
-      border: 2px solid #444;
+      background:#111; color:#0f0; font-family:monospace; padding:12px;
+      height:160px; overflow-y:auto; border:2px solid #444; margin:16px 0;
     }
   </style>
 </head>
 <body>
 
-<h1 style="text-align:center; color:#ffcc66;">Surviving the Depression – DEBUG MODE</h1>
+<h2 style="text-align:center; color:#ffcc66;">Depression Survival – Play Button Debug</h2>
 
-<div style="max-width:1100px; margin:auto;">
+<div id="log">Game starting…\nClick card → modal opens → press green PLAY CARD button</div>
 
-  <div style="display:flex; justify-content:space-between; margin:20px 0;">
-    <div>
-      <strong>Family Health:</strong> <span id="health">100</span>  
-      <div style="width:200px;height:20px;background:#444;border:2px solid gray;">
-        <div id="healthbar" style="width:100%;height:100%;background:lime;transition:width 0.6s;"></div>
-      </div>
-    </div>
-    <div>
-      <strong>Hardship:</strong> <span id="hardship">100</span>  
-      <div style="width:200px;height:20px;background:#444;border:2px solid gray;">
-        <div id="hardshipbar" style="width:100%;height:100%;background:red;transition:width 0.6s;"></div>
-      </div>
-    </div>
-  </div>
+<h3>Your hand (click to view/play):</h3>
+<div id="hand"></div>
 
-  <div id="log">Game starting… click a card → then "PLAY CARD" in popup</div>
-
-  <h3>Your cards (click to select):</h3>
-  <div id="player-hand"></div>
-
-  <div style="text-align:center; margin:20px 0;">
-    <button onclick="drawCard()" class="green">Draw a card</button>
-    <button onclick="nextCrisis()" class="red">Force next crisis</button>
-  </div>
-
-</div>
+<button onclick="draw()" style="background:#ffc107; color:black; display:block; margin:20px auto;">
+  Draw one card
+</button>
 
 <!-- MODAL -->
 <div id="modal">
-  <div id="modal-content">
-    <h2 id="modal-title"></h2>
-    <div id="modal-desc" style="margin:16px 0;"></div>
-    <div id="modal-effect" style="font-weight:bold; margin:12px 0;"></div>
+  <div id="modal-box">
+    <h2 id="m-title"></h2>
+    <p id="m-desc" style="margin:16px 0;"></p>
+    <p id="m-stats" style="font-weight:bold;"></p>
     <div style="text-align:center;">
-      <button onclick="hideModal()" style="background:#6c757d;color:white;">Close</button>
-      <button id="playButton" class="green">PLAY CARD</button>
+      <button class="close-btn" onclick="closeModal()">Close</button>
+      <button class="play-btn" 
+              onclick="playSelectedCard(); return false;">
+        PLAY CARD
+      </button>
     </div>
   </div>
 </div>
 
 <script>
-// ───── DATA ─────
-const cards = [
-  {id:1, name:"Victory Garden", emoji:"🥕", value:18, heal:10, desc:"Plant potatoes & beans"},
-  {id:2, name:"Barter",         emoji:"🤝", value:15, heal:12, desc:"Trade eggs for flour"},
-  {id:3, name:"CCC Work",       emoji:"🌲", value:22, heal:8,  desc:"Son joins tree-planting camp"},
-  {id:4, name:"Soup Kitchen",   emoji:"🍲", value:10, heal:18, desc:"Stand in line for broth"}
+// ────────────── Global selected card ──────────────
+let selected = null;
+
+// ────────────── Cards ──────────────
+const deck = [
+  {id:1, n:"Victory Garden", e:"🥕", v:18, h:10, d:"Plant food at home"},
+  {id:2, n:"Barter",         e:"🤝", v:15, h:12, d:"Trade with neighbors"},
+  {id:3, n:"CCC Work",       e:"🌲", v:22, h:8,  d:"Son joins work camp"},
+  {id:4, n:"Soup Kitchen",   e:"🍲", v:10, h:18, d:"Get free meal"}
 ];
 
-const crises = [
-  {id:101, name:"Layoffs",      emoji:"🚫", damage:22, desc:"Factory closed – no pay"},
-  {id:102, name:"Bank Fail",    emoji:"🏦", damage:18, desc:"Savings gone overnight"},
-  {id:103, name:"Eviction",     emoji:"🚪", damage:20, desc:"Furniture on sidewalk"},
-  {id:104, name:"Dust Storm",   emoji:"🌪️", damage:24, desc:"Black blizzard – crops dead"}
-];
+let hand = deck.slice(0,3); // start with 3 cards
 
-// ───── STATE ─────
-let familyHealth   = 100;
-let hardshipLevel  = 100;
-let hand           = [];
-let deck           = [...cards];
-let crisisDeck     = [...crises];
-let selectedCard   = null;
-
-// ───── HELPERS ─────
-function log(txt, color='lime') {
-  const logEl = document.getElementById('log');
-  logEl.innerHTML += `<div style="color:${color}">[LOG] ${txt}</div>`;
-  logEl.scrollTop = logEl.scrollHeight;
+function log(txt) {
+  const el = document.getElementById('log');
+  el.innerHTML += txt + '\n';
+  el.scrollTop = el.scrollHeight;
   console.log(txt);
 }
 
-function updateUI() {
-  document.getElementById('health').textContent    = familyHealth;
-  document.getElementById('healthbar').style.width = familyHealth + '%';
-  document.getElementById('hardship').textContent  = hardshipLevel;
-  document.getElementById('hardshipbar').style.width = hardshipLevel + '%';
-}
-
-function renderHand() {
-  const container = document.getElementById('player-hand');
-  container.innerHTML = '';
-  hand.forEach(card => {
+function render() {
+  const cont = document.getElementById('hand');
+  cont.innerHTML = '';
+  hand.forEach(c => {
     const div = document.createElement('div');
     div.className = 'card';
     div.innerHTML = `
-      <div style="font-size:3.5rem; text-align:center;">${card.emoji}</div>
-      <div style="font-weight:bold; text-align:center; font-size:1.3rem;">${card.name}</div>
-      <div style="text-align:center; color:#555;">${card.desc}</div>
-      <div style="text-align:center; margin-top:12px;">
-        <span style="background:#28a745;color:white;padding:4px 12px;border-radius:12px;">Ease ${card.value}</span>
-        <span style="background:#17a2b8;color:white;padding:4px 12px;border-radius:12px;">Heal ${card.heal}</span>
+      <div style="font-size:3rem; text-align:center;">${c.e}</div>
+      <div style="font-weight:bold; text-align:center;">${c.n}</div>
+      <div style="text-align:center; color:#555; margin-top:8px;">${c.d}</div>
+      <div style="margin-top:12px; text-align:center;">
+        <span style="background:#28a745;color:white;padding:4px 10px;border-radius:12px;">-${c.v} hardship</span>
+        <span style="background:#17a2b8;color:white;padding:4px 10px;border-radius:12px;">+${c.h} health</span>
       </div>
     `;
-    div.onclick = () => showModal(card);
-    container.appendChild(div);
+    div.onclick = () => openModal(c);
+    cont.appendChild(div);
   });
 }
 
-// ───── ACTIONS ─────
-function drawCard() {
-  if (deck.length === 0) return log("No more cards!", "orange");
-  const card = deck.pop();
-  hand.push(card);
-  renderHand();
-  log(`Drew → ${card.name}`);
-}
+function openModal(card) {
+  log(`→ Card clicked: ${card.n} (id ${card.id})`);
+  selected = card;
 
-function showModal(card) {
-  log(`Clicked card: ${card.name} (id ${card.id})`);
-  selectedCard = card;
-
-  document.getElementById('modal-title').textContent = card.name + "  " + card.emoji;
-  document.getElementById('modal-desc').textContent  = card.desc;
-  document.getElementById('modal-effect').innerHTML  = 
-    `Reduces hardship by <b>${card.value}</b><br>Heals family by <b>${card.heal}</b>`;
+  document.getElementById('m-title').textContent = card.n + '  ' + card.e;
+  document.getElementById('m-desc').textContent = card.d;
+  document.getElementById('m-stats').innerHTML = 
+    `Reduces hardship by <b>${card.v}</b><br>Increases family health by <b>${card.h}</b>`;
 
   document.getElementById('modal').style.display = 'flex';
 }
 
-function hideModal() {
+function closeModal() {
+  log("Modal closed (via Close button)");
   document.getElementById('modal').style.display = 'none';
-  selectedCard = null;
-  log("Modal closed");
+  selected = null;
 }
 
-function playCard() {
-  if (!selectedCard) {
-    log("BUG: No card selected when Play was pressed!", "red");
+function playSelectedCard() {
+  if (!selected) {
+    log("BUG: No card selected when PLAY was pressed!", "color:red");
+    alert("No card selected – try clicking a card again.");
     return;
   }
 
-  log(`PLAYING CARD → ${selectedCard.name}`, "yellow");
+  log(`PLAY button pressed → executing ${selected.n}`);
 
-  // actually play it
-  hardshipLevel = Math.max(0, hardshipLevel - selectedCard.value);
-  familyHealth  = Math.min(100, familyHealth + selectedCard.heal);
+  // Apply effects
+  hardshipLevel = Math.max(0, (window.hardshipLevel || 100) - selected.v);
+  familyHealth  = Math.min(100, (window.familyHealth || 100) + selected.h);
 
-  // remove from hand
-  hand = hand.filter(c => c.id !== selectedCard.id);
-  renderHand();
+  // Remove from hand
+  hand = hand.filter(c => c.id !== selected.id);
+  render();
 
-  updateUI();
-  hideModal();
+  // Update display (simple version)
+  document.getElementById('log').innerHTML += 
+    `\nPlayed ${selected.n} → hardship now ~${hardshipLevel}, health now ~${familyHealth}\n`;
 
-  log(`Success! Hardship now ${hardshipLevel} | Health now ${familyHealth}`, "lime");
-
-  // next crisis after delay
-  setTimeout(nextCrisis, 800);
+  closeModal();
+  log("Card successfully played! ✓", "color:#0f0; font-weight:bold");
 }
 
-function nextCrisis() {
-  if (crisisDeck.length === 0) return log("No more crises!", "orange");
-  const crisis = crisisDeck.pop();
-  familyHealth = Math.max(0, familyHealth - crisis.damage);
-  updateUI();
-  document.getElementById('crisis-card').innerHTML = `
-    <div style="font-size:4rem; opacity:0.7;">${crisis.emoji}</div>
-    <div style="font-weight:bold; margin:12px 0;">${crisis.name}</div>
-    <div style="color:#900;">Family loses ${crisis.damage} health</div>
-  `;
-  log(`CRISIS: ${crisis.name} → -${crisis.damage} health`, "red");
-}
-
-// ───── START ─────
+// Start
 window.onload = () => {
-  deck = shuffle(deck);
-  crisisDeck = shuffle(crisisDeck);
-  hand = deck.splice(0,3);
-  renderHand();
-  updateUI();
-  log("Game ready. Click any card → then press PLAY CARD in popup", "cyan");
-  document.getElementById('playButton').onclick = playCard;
-  document.getElementById('playButton').addEventListener('click', playCard); // double safety
+  window.hardshipLevel = 100;
+  window.familyHealth = 100;
+  render();
+  log("Ready. Click any card, then press PLAY CARD in the popup.", "color:#0ff");
 };
 </script>
 </body>
