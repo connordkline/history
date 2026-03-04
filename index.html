@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Surviving the Depression – Fixed</title>
+  <title>Surviving the Depression</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <style>
@@ -25,290 +25,283 @@
       transition: all 0.2s ease;
       cursor: pointer;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      pointer-events: auto;
     }
     .card:hover, .card:active {
       transform: translateY(-6px) scale(1.03);
       box-shadow: 0 12px 24px rgba(0,0,0,0.55);
       border-color: #c9a875;
     }
-    #player-hand {
-      pointer-events: auto;
-      position: relative;
-      z-index: 5;
-    }
-    #modal-backdrop {
-      pointer-events: auto;
-    }
   </style>
 </head>
 <body class="min-h-screen pb-8">
 
-  <header class="bg-[#1f160e] border-b-4 border-[#8b6f47] sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <div class="text-4xl">🏚️</div>
-        <h1 class="text-2xl md:text-4xl font-bold text-[#e8c39c]">Surviving the Depression</h1>
+<header class="bg-[#1f160e] border-b-4 border-[#8b6f47] sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="text-4xl">🏚️</div>
+      <h1 class="text-2xl md:text-4xl font-bold text-[#e8c39c]">Surviving the Depression</h1>
+    </div>
+    <button onclick="location.reload()" class="bg-[#8b6f47] hover:bg-[#a68a5f] px-5 py-2 rounded text-white">
+      Restart
+    </button>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+  <!-- Hardship -->
+  <section class="lg:col-span-3 newsprint p-5 rounded">
+    <h2 class="text-red-600 text-xl font-bold mb-3">HARDSHIP LEVEL</h2>
+    <div class="mb-4">
+      <div class="flex justify-between text-sm mb-1">
+        <span>Current</span>
+        <span id="hardship-level">100</span>
       </div>
-      <div class="flex gap-4">
-        <button onclick="alert('Goal: Reduce hardship to 0 before family health reaches 0.\nTap cards to play them.')" class="text-[#d4a373] hover:text-white">
-          <i class="fa-solid fa-book"></i> Rules
-        </button>
-        <button onclick="location.reload()" class="bg-[#8b6f47] hover:bg-[#a68a5f] px-4 py-2 rounded text-white">
-          Restart
-        </button>
+      <div class="h-5 bg-gray-800 rounded-full overflow-hidden border border-[#8b6f47]">
+        <div id="hardship-bar" class="h-full bg-gradient-to-r from-red-700 to-orange-500 w-full transition-all duration-700"></div>
       </div>
     </div>
-  </header>
-
-  <main class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-    <!-- Hardship -->
-    <section class="lg:col-span-3 order-2 lg:order-1 newsprint p-5 rounded">
-      <h2 class="text-red-600 text-xl font-bold mb-3">HARDSHIP</h2>
-      <div class="mb-4">
-        <div class="flex justify-between text-sm mb-1">
-          <span>Level</span>
-          <span id="hardship-level">100</span>
-        </div>
-        <div class="h-4 bg-gray-800 rounded-full overflow-hidden border-2 border-[#8b6f47]">
-          <div id="hardship-bar" class="h-full bg-gradient-to-r from-red-700 to-orange-500 w-full transition-all"></div>
-        </div>
+    <div class="text-center">
+      <p class="text-[#8b6f47] text-xs mb-2 uppercase tracking-wide">Latest Crisis</p>
+      <div id="crisis-card" class="newsprint p-5 min-h-[160px] flex flex-col items-center justify-center text-center">
+        <div class="text-6xl opacity-40 mb-3">📉</div>
+        <p class="text-gray-700">Waiting...</p>
       </div>
-      <div class="text-center">
-        <p class="text-[#8b6f47] text-xs mb-2">Latest Crisis</p>
-        <div id="crisis-card" class="newsprint p-4 min-h-[140px] flex flex-col items-center justify-center">
-          <div class="text-5xl opacity-40">📉</div>
-          <p class="text-gray-600 mt-2">Waiting...</p>
-        </div>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Center -->
-    <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col gap-6">
+  <!-- Center game area -->
+  <section class="lg:col-span-6 flex flex-col gap-6">
 
-      <div id="game-log" class="newsprint p-5 h-48 overflow-y-auto rounded text-sm">
-        <div class="text-center text-[#8b6f47] py-6">1930 – hard times begin...</div>
-      </div>
+    <div id="game-log" class="newsprint p-5 h-48 overflow-y-auto rounded text-sm">
+      <div class="text-center text-[#8b6f47] py-8">Hard times are here…</div>
+    </div>
 
-      <div class="newsprint p-5 rounded text-center">
-        <div class="text-green-700 uppercase text-sm mb-2">Family Health</div>
-        <div class="flex items-center justify-center gap-4">
-          <div id="family-health" class="text-5xl font-bold text-green-600">100</div>
-          <div class="h-8 w-px bg-[#8b6f47]"></div>
-          <div class="w-40">
-            <div class="h-4 bg-gray-800 rounded-full overflow-hidden border-2 border-[#8b6f47]">
-              <div id="family-bar" class="h-full bg-gradient-to-r from-green-600 to-lime-500 w-full transition-all"></div>
-            </div>
+    <div class="newsprint p-5 rounded text-center">
+      <div class="text-green-700 uppercase text-sm mb-2 font-semibold">Family Health</div>
+      <div class="flex items-center justify-center gap-5">
+        <div id="family-health" class="text-6xl font-bold text-green-600">100</div>
+        <div class="h-10 w-px bg-[#8b6f47]"></div>
+        <div class="w-48">
+          <div class="h-5 bg-gray-800 rounded-full overflow-hidden border border-[#8b6f47]">
+            <div id="family-bar" class="h-full bg-gradient-to-r from-green-600 to-lime-400 w-full transition-all duration-700"></div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="newsprint p-5 rounded">
-        <div class="flex justify-between items-center mb-3">
-          <div class="font-bold text-[#6b4c2e]">YOUR CARDS • <span id="hand-count">3</span></div>
-          <button onclick="drawCard()" class="text-[#8b6f47] hover:text-black text-sm flex items-center gap-2">
-            Draw <span id="deck-count" class="bg-[#6b4c2e] text-white px-2 py-1 rounded-full text-xs">12</span>
-          </button>
-        </div>
-        <div id="player-hand" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
-      </div>
-
-      <div class="flex justify-center">
-        <button onclick="waitMonth()" class="bg-[#6b4c2e] hover:bg-[#8b6f47] text-white px-8 py-3 rounded flex items-center gap-2">
-          <i class="fa-solid fa-forward"></i> Next Month
+    <div class="newsprint p-5 rounded">
+      <div class="flex justify-between items-center mb-4">
+        <div class="font-bold text-[#6b4c2e]">YOUR SURVIVAL CARDS • <span id="hand-count">3</span></div>
+        <button onclick="drawCard()" class="text-[#8b6f47] hover:text-black text-sm flex items-center gap-2">
+          Draw <span id="deck-count" class="bg-[#6b4c2e] text-white px-3 py-1 rounded-full text-xs">12</span>
         </button>
       </div>
-    </section>
+      <div id="player-hand" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+    </div>
 
-    <!-- Stats -->
-    <section class="lg:col-span-3 order-3 newsprint p-5 rounded text-center">
-      <div class="uppercase text-sm text-[#6b4c2e] mb-2">Progress</div>
-      <div id="turn-counter" class="text-4xl font-bold text-red-600">JAN 1930</div>
-      <div class="mt-4 space-y-2 text-sm">
-        <div class="flex justify-between">
-          <span>Score</span><span id="survival-score">0</span>
-        </div>
-        <div class="flex justify-between">
-          <span>Moves</span><span id="actions-count">0</span>
-        </div>
+    <div class="flex justify-center">
+      <button onclick="waitMonth()" class="bg-[#6b4c2e] hover:bg-[#8b6f47] text-white px-8 py-4 rounded-lg flex items-center gap-3 text-lg">
+        <i class="fa-solid fa-forward"></i> Next Month
+      </button>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="lg:col-span-3 newsprint p-5 rounded text-center">
+    <div class="uppercase text-sm text-[#6b4c2e] mb-3">Progress</div>
+    <div id="turn-counter" class="text-4xl font-bold text-red-600 mb-4">JAN 1930</div>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span>Score</span>
+        <span id="survival-score">0</span>
       </div>
-    </section>
-
-  </main>
-
-  <!-- Modal -->
-  <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 pointer-events-auto">
-    <div class="newsprint border-4 border-[#8b6f47] rounded-lg max-w-sm w-11/12 max-h-[85vh] overflow-y-auto pointer-events-auto">
-      <div id="modal-card" class="p-6"></div>
-      <div class="flex p-4 border-t-2 border-[#8b6f47] gap-3">
-        <button onclick="hideModal()" class="flex-1 py-3 bg-gray-800 text-white rounded hover:bg-gray-700">Close</button>
-        <button onclick="confirmPlay()" class="flex-1 py-3 bg-green-700 text-white rounded hover:bg-green-600">Play Card</button>
+      <div class="flex justify-between">
+        <span>Actions</span>
+        <span id="actions-count">0</span>
       </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Play Card Modal -->
+<div id="modal-backdrop" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+  <div class="newsprint border-4 border-[#8b6f47] rounded-xl max-w-sm w-[92%] max-h-[85vh] overflow-y-auto">
+    <div id="modal-card" class="p-6"></div>
+    <div class="flex gap-4 p-5 border-t-2 border-[#8b6f47]">
+      <button onclick="hideModal()" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg">Close</button>
+      <button id="play-btn" class="flex-1 py-3 bg-green-700 hover:bg-green-600 text-white rounded-lg font-semibold">Play Card</button>
     </div>
   </div>
+</div>
 
-  <script>
-    // Cards (short version for testing)
-    const playerDeck = [
-      {id:1, name:"Victory Garden", emoji:"🥕", value:18, heal:10, desc:"Plant food in backyard", fact:"Saved many families from hunger", type:"survival"},
-      {id:2, name:"Barter", emoji:"🤝", value:15, heal:12, desc:"Trade with neighbors", fact:"Cash was scarce", type:"survival"},
-      {id:3, name:"CCC Job", emoji:"🌲", value:22, heal:8, desc:"Work planting trees", fact:"Employed millions", type:"survival"},
-      {id:4, name:"Soup Kitchen", emoji:"🍲", value:10, heal:18, desc:"Get free meal", fact:"Churches fed many", type:"survival"}
-    ];
+<script>
+// ────────────────────────────────────────────────
+// CARDS
+// ────────────────────────────────────────────────
+const playerDeck = [
+  {id:1, name:"Victory Garden", emoji:"🥕", value:18, heal:10, desc:"Grow your own vegetables", fact:"Millions planted gardens", type:"survival"},
+  {id:2, name:"Barter", emoji:"🤝", value:15, heal:12, desc:"Trade with neighbors", fact:"Common when cash was scarce", type:"survival"},
+  {id:3, name:"CCC Work", emoji:"🌲", value:22, heal:8, desc:"Young men plant trees & build parks", fact:"Employed over 3 million", type:"survival"},
+  {id:4, name:"Soup Kitchen", emoji:"🍲", value:10, heal:18, desc:"Wait in line for a meal", fact:"Fed millions during the worst years", type:"survival"}
+];
 
-    const crisisDeck = [
-      {id:101, name:"Layoffs", emoji:"🚫", damage:22, desc:"Lost job", fact:"25% unemployment", type:"crisis"},
-      {id:102, name:"Bank Fail", emoji:"🏦", damage:18, desc:"Savings gone", fact:"9000 banks failed", type:"crisis"},
-      {id:103, name:"Eviction", emoji:"🏠", damage:20, desc:"Thrown out", fact:"Hoovervilles grew", type:"crisis"},
-      {id:104, name:"Dust Storm", emoji:"🌪️", damage:24, desc:"Crops ruined", fact:"Mass migration", type:"crisis"}
-    ];
+const crisisDeck = [
+  {id:101, name:"Layoffs", emoji:"🚫", damage:22, desc:"Lost your job", fact:"Unemployment reached 25%", type:"crisis"},
+  {id:102, name:"Bank Failure", emoji:"🏦", damage:18, desc:"Savings disappeared", fact:"Over 9,000 banks failed", type:"crisis"},
+  {id:103, name:"Eviction", emoji:"🏠", damage:20, desc:"Family put on the street", fact:"Hoovervilles appeared nationwide", type:"crisis"},
+  {id:104, name:"Dust Storm", emoji:"🌪️", damage:24, desc:"Black blizzard ruins crops", fact:"Forced millions to migrate", type:"crisis"}
+];
 
-    let familyHealth = 100;
-    let hardshipLevel = 100;
-    let playerHand = [];
-    let currentPlayerDeck = [];
-    let currentCrisisDeck = [];
-    let actionsTaken = 0;
-    let month = 1;
-    let year = 1930;
-    let gameOver = false;
-    let selectedCard = null;
-    let survivalScore = 0;
+// Game state
+let familyHealth = 100;
+let hardshipLevel = 100;
+let playerHand = [];
+let currentPlayerDeck = [];
+let currentCrisisDeck = [];
+let actionsTaken = 0;
+let month = 1;
+let year = 1930;
+let gameOver = false;
+let selectedCard = null;
+let survivalScore = 0;
 
-    const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
 
-    function shuffle(arr) {
-      return [...arr].sort(() => Math.random() - 0.5);
-    }
+// Helpers
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 
-    function updateBars() {
-      document.getElementById("family-health").textContent = Math.max(0, familyHealth);
-      document.getElementById("family-bar").style.width = Math.max(0, Math.min(100, familyHealth)) + "%";
-      document.getElementById("hardship-level").textContent = Math.max(0, hardshipLevel);
-      document.getElementById("hardship-bar").style.width = Math.max(0, Math.min(100, hardshipLevel)) + "%";
-    }
+function updateBars() {
+  document.getElementById("family-health").textContent = Math.max(0, familyHealth);
+  document.getElementById("family-bar").style.width = Math.max(0, Math.min(100, familyHealth)) + "%";
+  document.getElementById("hardship-level").textContent = Math.max(0, hardshipLevel);
+  document.getElementById("hardship-bar").style.width = Math.max(0, Math.min(100, hardshipLevel)) + "%";
+}
 
-    function createCardHTML(card) {
-      const isCrisis = card.type === "crisis";
-      return `
-        <div class="p-4 h-full flex flex-col justify-between">
-          <div class="text-5xl text-center">${card.emoji}</div>
-          <div class="text-center font-bold text-lg mt-2">${card.name}</div>
-          <div class="text-center text-sm text-gray-700 mt-1">${card.desc}</div>
-          <div class="flex justify-center gap-2 mt-3 text-xs">
-            ${isCrisis 
-              ? `<span class="bg-red-600 text-white px-3 py-1 rounded-full">Damage ${card.damage}</span>`
-              : `
-                <span class="bg-green-600 text-white px-3 py-1 rounded-full">Ease ${card.value}</span>
-                ${card.heal ? `<span class="bg-teal-600 text-white px-3 py-1 rounded-full">Heal ${card.heal}</span>` : ''}
-              `}
-          </div>
-        </div>
-      `;
-    }
+function createCardHTML(card) {
+  const isCrisis = card.type === "crisis";
+  return `
+    <div class="flex flex-col h-full justify-between">
+      <div class="text-6xl text-center mb-3">${card.emoji}</div>
+      <div class="text-center font-bold text-xl mb-2">${card.name}</div>
+      <div class="text-center text-sm text-gray-700 mb-4">${card.desc}</div>
+      <div class="flex justify-center gap-3 text-xs">
+        ${isCrisis 
+          ? `<span class="bg-red-600 text-white px-4 py-2 rounded-full">Damage ${card.damage}</span>`
+          : `
+            <span class="bg-green-600 text-white px-4 py-2 rounded-full">Ease ${card.value}</span>
+            ${card.heal ? `<span class="bg-teal-600 text-white px-4 py-2 rounded-full">Heal ${card.heal}</span>` : ''}
+          `}
+      </div>
+    </div>
+  `;
+}
 
-    function renderHand() {
-      const container = document.getElementById("player-hand");
-      container.innerHTML = "";
-      playerHand.forEach(card => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = createCardHTML(card);
-        div.addEventListener("pointerdown", (e) => {
-          e.preventDefault();
-          showCardModal(card);
-        });
-        container.appendChild(div);
-      });
-      document.getElementById("hand-count").textContent = playerHand.length;
-    }
+function renderHand() {
+  const container = document.getElementById("player-hand");
+  container.innerHTML = "";
+  playerHand.forEach(card => {
+    const div = document.createElement("div");
+    div.className = "card p-4 h-64";
+    div.innerHTML = createCardHTML(card);
+    div.onclick = () => showCardModal(card);
+    container.appendChild(div);
+  });
+  document.getElementById("hand-count").textContent = playerHand.length;
+}
 
-    function log(msg, cls = "") {
-      const log = document.getElementById("game-log");
-      const div = document.createElement("div");
-      div.className = `py-2 border-b border-gray-400 ${cls}`;
-      div.innerHTML = msg;
-      log.appendChild(div);
-      log.scrollTop = log.scrollHeight;
-    }
+function log(msg, colorClass = "") {
+  const logEl = document.getElementById("game-log");
+  const div = document.createElement("div");
+  div.className = `py-2 border-b border-gray-400 ${colorClass}`;
+  div.innerHTML = msg;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+}
 
-    function drawCard() {
-      if (gameOver || currentPlayerDeck.length === 0 || playerHand.length >= 5) return;
-      const card = currentPlayerDeck.pop();
-      playerHand.push(card);
-      renderHand();
-      document.getElementById("deck-count").textContent = currentPlayerDeck.length;
-      log(`Drew: <strong>${card.name}</strong>`, "text-green-600");
-    }
+function drawCard() {
+  if (gameOver || currentPlayerDeck.length === 0 || playerHand.length >= 5) return;
+  const card = currentPlayerDeck.pop();
+  playerHand.push(card);
+  renderHand();
+  document.getElementById("deck-count").textContent = currentPlayerDeck.length;
+  log(`Found: <strong>${card.name}</strong>`, "text-green-600");
+}
 
-    function showCardModal(card) {
-      if (gameOver) return;
-      selectedCard = card;
-      document.getElementById("modal-card").innerHTML = `
-        ${createCardHTML(card)}
-        <div class="mt-4 p-3 bg-gray-100 rounded border border-gray-300 text-sm">
-          <div class="text-gray-600 uppercase text-xs mb-1">History</div>
-          <p class="italic">${card.fact}</p>
-        </div>
-      `;
-      document.getElementById("modal-backdrop").classList.remove("hidden");
-    }
+function showCardModal(card) {
+  selectedCard = card;
+  document.getElementById("modal-card").innerHTML = `
+    ${createCardHTML(card)}
+    <div class="mt-5 p-4 bg-gray-100 rounded border border-gray-300 text-sm">
+      <div class="text-gray-600 uppercase text-xs mb-2">Historical note</div>
+      <p class="italic">${card.fact}</p>
+    </div>
+  `;
+  document.getElementById("modal-backdrop").classList.remove("hidden");
+}
 
-    function hideModal() {
-      document.getElementById("modal-backdrop").classList.add("hidden");
-      selectedCard = null;
-    }
+function hideModal() {
+  document.getElementById("modal-backdrop").classList.add("hidden");
+  selectedCard = null;
+}
 
-    function confirmPlay() {
-      if (!selectedCard) return;
-      hideModal();
+function confirmPlay() {
+  if (!selectedCard) {
+    log("No card selected!", "text-red-600");
+    return;
+  }
 
-      playerHand = playerHand.filter(c => c.id !== selectedCard.id);
-      hardshipLevel = Math.max(0, hardshipLevel - selectedCard.value);
-      if (selectedCard.heal) familyHealth = Math.min(100, familyHealth + selectedCard.heal);
+  const card = selectedCard;
+  hideModal();
 
-      actionsTaken++;
-      survivalScore += Math.floor(selectedCard.value * 1.2 + (selectedCard.heal || 0) * 1.4);
+  playerHand = playerHand.filter(c => c.id !== card.id);
+  hardshipLevel = Math.max(0, hardshipLevel - card.value);
+  if (card.heal) familyHealth = Math.min(100, familyHealth + card.heal);
 
-      renderHand();
-      updateBars();
-      document.getElementById("survival-score").textContent = survivalScore;
-      document.getElementById("actions-count").textContent = actionsTaken;
+  actionsTaken++;
+  survivalScore += Math.floor(card.value * 1.3 + (card.heal || 0) * 1.5);
 
-      log(`Played <strong>${selectedCard.name}</strong>`, "text-green-600");
+  renderHand();
+  updateBars();
+  document.getElementById("survival-score").textContent = survivalScore;
+  document.getElementById("actions-count").textContent = actionsTaken;
 
-      setTimeout(nextCrisis, 600);
-    }
+  log(`Used <strong>${card.name}</strong> → hardship -${card.value}${card.heal ? `, family +${card.heal}` : ''}`, "text-green-600 font-medium");
 
-    function nextCrisis() {
-      if (gameOver || currentCrisisDeck.length === 0) return;
-      const crisis = currentCrisisDeck.pop();
-      document.getElementById("crisis-card").innerHTML = createCardHTML(crisis);
-      familyHealth = Math.max(0, familyHealth - crisis.damage);
-      log(`Crisis: <strong>${crisis.name}</strong> → -${crisis.damage}`, "text-red-600");
-      updateBars();
-      month++;
-      if (month > 12) { month = 1; year++; }
-      document.getElementById("turn-counter").textContent = `${months[month-1]} ${year}`;
-      if (Math.random() > 0.4) drawCard();
-    }
+  setTimeout(nextCrisis, 700);
+}
 
-    function waitMonth() {
-      if (!gameOver) nextCrisis();
-    }
+function nextCrisis() {
+  if (gameOver || currentCrisisDeck.length === 0) return;
+  const crisis = currentCrisisDeck.pop();
+  document.getElementById("crisis-card").innerHTML = createCardHTML(crisis);
+  familyHealth = Math.max(0, familyHealth - crisis.damage);
+  log(`Hardship: <strong>${crisis.name}</strong> → family -${crisis.damage}`, "text-red-600 font-medium");
+  updateBars();
 
-    window.onload = () => {
-      currentPlayerDeck = shuffle(playerDeck);
-      currentCrisisDeck = shuffle(crisisDeck);
-      playerHand = currentPlayerDeck.splice(0, 3);
-      updateBars();
-      renderHand();
-      document.getElementById("deck-count").textContent = currentPlayerDeck.length;
-      log("Cards ready. Tap one to play.", "text-green-600");
-    };
-  </script>
+  month++;
+  if (month > 12) { month = 1; year++; }
+  document.getElementById("turn-counter").textContent = `${months[month-1]} ${year}`;
+
+  if (Math.random() > 0.35) drawCard();
+}
+
+function waitMonth() {
+  if (!gameOver) nextCrisis();
+}
+
+// Start game
+window.onload = () => {
+  currentPlayerDeck = shuffle(playerDeck);
+  currentCrisisDeck = shuffle(crisisDeck);
+  playerHand = currentPlayerDeck.splice(0, 3);
+  updateBars();
+  renderHand();
+  document.getElementById("deck-count").textContent = currentPlayerDeck.length;
+  log("Your hand is ready. Click a card to use it.", "text-green-600");
+};
+</script>
 </body>
 </html>
