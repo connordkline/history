@@ -3,51 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEW DEAL SHOWDOWN – Great Depression Card Game</title>
+  <title>SURVIVING THE DEPRESSION – 1930s Card Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <style>
     body {
-      background: linear-gradient(to bottom, #1e1a16, #0f0b08);
-      color: #f5e8d3;
-      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(to bottom, #2a1f18, #0f0b08);
+      color: #f0d9b5;
+      font-family: system-ui, sans-serif;
     }
     .card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
     .card:hover {
-      transform: translateY(-4px) scale(1.03);
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.6);
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 12px 30px -6px rgba(0,0,0,0.7);
     }
     .health-bar {
-      transition: width 0.8s ease-out;
+      transition: width 0.9s ease-out;
     }
-    #game-log {
-      scrollbar-width: thin;
-      scrollbar-color: #8b6f47 #2d2218;
-    }
-    #game-log::-webkit-scrollbar {
-      width: 6px;
-    }
-    #game-log::-webkit-scrollbar-track {
-      background: #2d2218;
-    }
-    #game-log::-webkit-scrollbar-thumb {
-      background: #8b6f47;
-      border-radius: 3px;
-    }
+    #game-log::-webkit-scrollbar { width: 5px; }
+    #game-log::-webkit-scrollbar-track { background: #2d2218; }
+    #game-log::-webkit-scrollbar-thumb { background: #8b6f47; border-radius: 4px; }
   </style>
 </head>
 <body class="min-h-screen pb-8">
 
   <!-- Header -->
-  <header class="bg-black/70 border-b border-amber-900/50 sticky top-0 z-50 backdrop-blur-sm">
+  <header class="bg-black/70 border-b border-amber-900/60 sticky top-0 z-50 backdrop-blur-sm">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="text-3xl">📉</div>
+        <div class="text-3xl">🏚️</div>
         <div>
-          <h1 class="text-2xl md:text-4xl font-bold text-amber-200">NEW DEAL SHOWDOWN</h1>
-          <p class="text-xs md:text-sm text-amber-400">Great Depression Card Game</p>
+          <h1 class="text-2xl md:text-4xl font-bold text-amber-200">SURVIVING THE DEPRESSION</h1>
+          <p class="text-xs md:text-sm text-amber-400">Life as an Ordinary Family • 1930s</p>
         </div>
       </div>
       <div class="flex gap-4">
@@ -63,104 +52,104 @@
 
   <main class="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-6">
 
-    <!-- Left – Depression (mobile: top) -->
-    <section class="lg:w-72 bg-[#2c2118] border border-red-900/50 rounded-xl p-5 order-2 lg:order-1">
-      <h2 class="text-red-300 text-sm font-semibold mb-3 uppercase tracking-wide">Depression Strength</h2>
+    <!-- Left – Hardship (mobile top) -->
+    <section class="lg:w-72 bg-[#2c2118] border border-red-900/60 rounded-xl p-5 order-2 lg:order-1">
+      <h2 class="text-red-300 text-sm font-semibold mb-3 uppercase tracking-wide">Economic Hardship</h2>
       <div class="mb-4">
         <div class="flex justify-between text-xs mb-1 text-red-200">
-          <span>Power</span>
-          <span id="depression-health-text">100</span>
+          <span>Pressure</span>
+          <span id="hardship-level">100</span>
         </div>
-        <div class="h-3 bg-black/60 rounded-full overflow-hidden border border-red-900/40">
-          <div id="depression-health-bar" class="h-full w-full bg-gradient-to-r from-red-700 to-red-500"></div>
+        <div class="h-3 bg-black/60 rounded-full overflow-hidden border border-red-900/50">
+          <div id="hardship-bar" class="h-full w-full bg-gradient-to-r from-red-700 to-red-500"></div>
         </div>
       </div>
       <div class="text-center mt-4">
         <p class="text-xs text-amber-400 mb-2">Latest Crisis</p>
-        <div id="ai-played-card" class="bg-[#3a2a1f] border border-red-800 rounded-xl p-4 min-h-[180px] flex flex-col items-center justify-center text-center">
+        <div id="crisis-card" class="bg-[#3a2a1f] border border-red-800 rounded-xl p-4 min-h-[180px] flex flex-col items-center justify-center text-center">
           <div class="text-5xl opacity-40 mb-3">📉</div>
           <p class="text-amber-300/60 text-sm">Waiting...</p>
         </div>
       </div>
     </section>
 
-    <!-- Center – Game Area -->
+    <!-- Center – Game -->
     <section class="flex-1 order-1 lg:order-2 flex flex-col gap-6">
 
-      <!-- Log (scrollable) -->
-      <div id="game-log" class="bg-black/60 border border-amber-900/40 rounded-xl p-4 h-48 md:h-64 overflow-y-auto text-sm leading-relaxed">
+      <!-- Log -->
+      <div id="game-log" class="bg-black/65 border border-amber-900/50 rounded-xl p-4 h-48 md:h-64 overflow-y-auto text-sm leading-relaxed">
         <div class="text-center text-amber-400/70 py-8">
-          <i class="fa-solid fa-scroll mr-2"></i> Game events appear here
+          <i class="fa-solid fa-scroll mr-2"></i> Your family's story begins...
         </div>
       </div>
 
-      <!-- Health – Your Economy -->
+      <!-- Your Family's Well-Being -->
       <div class="text-center">
-        <div class="text-xs md:text-sm text-emerald-400 mb-1">YOUR ECONOMY</div>
+        <div class="text-xs md:text-sm text-emerald-400 mb-1">FAMILY WELL-BEING</div>
         <div class="flex items-center justify-center gap-4">
-          <div id="player-health" class="text-5xl md:text-6xl font-bold text-emerald-300">100</div>
+          <div id="family-health" class="text-5xl md:text-6xl font-bold text-emerald-300">100</div>
           <div class="h-10 w-px bg-amber-800"></div>
           <div class="w-40 md:w-56">
             <div class="h-4 bg-black/60 rounded-full overflow-hidden">
-              <div id="player-health-bar" class="h-full w-full bg-gradient-to-r from-emerald-600 to-teal-400"></div>
+              <div id="family-bar" class="h-full w-full bg-gradient-to-r from-emerald-600 to-teal-400"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Player Hand -->
+      <!-- Hand -->
       <div>
         <div class="flex justify-between items-center mb-3">
-          <div class="text-xs md:text-sm text-amber-400">YOUR NEW DEAL CARDS • <span id="hand-count">3</span></div>
+          <div class="text-xs md:text-sm text-amber-400">YOUR SURVIVAL IDEAS • <span id="hand-count">3</span></div>
           <button onclick="drawCard()" class="text-xs md:text-sm flex items-center gap-2 hover:text-white">
-            Draw <span id="deck-count" class="bg-amber-900 px-2 py-1 rounded-full text-[10px]">12</span>
+            Scrounge more <span id="deck-count" class="bg-amber-900 px-2 py-1 rounded-full text-[10px]">12</span>
           </button>
         </div>
         <div id="player-hand" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <!-- cards go here -->
+          <!-- cards -->
         </div>
       </div>
 
       <!-- Controls -->
       <div class="flex justify-center">
-        <button onclick="endTurnEarly()" class="bg-amber-950 hover:bg-amber-900 border border-amber-800 px-6 py-3 rounded-xl text-sm flex items-center gap-2">
-          <i class="fa-solid fa-forward"></i> End Turn
+        <button onclick="waitMonth()" class="bg-amber-950 hover:bg-amber-900 border border-amber-800 px-6 py-3 rounded-xl text-sm flex items-center gap-2">
+          <i class="fa-solid fa-forward"></i> Wait (Next Month)
         </button>
       </div>
     </section>
 
-    <!-- Right – Stats (mobile: bottom) -->
+    <!-- Right – Stats -->
     <section class="lg:w-72 bg-[#2c2118] border border-amber-900/50 rounded-xl p-5 order-3">
       <div class="text-center mb-6">
-        <div class="text-xs text-amber-400">TURN</div>
-        <div id="turn-counter" class="text-5xl font-bold text-amber-200">01</div>
+        <div class="text-xs text-amber-400">MONTH / YEAR</div>
+        <div id="turn-counter" class="text-5xl font-bold text-amber-200">JAN 1930</div>
       </div>
       <div class="space-y-4 text-sm">
         <div class="flex justify-between">
-          <span class="text-amber-400">Recovery Score</span>
-          <span id="recovery-score" class="text-emerald-300 font-bold">0</span>
+          <span class="text-amber-400">Survival Score</span>
+          <span id="survival-score" class="text-emerald-300 font-bold">0</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-amber-400">Policies Passed</span>
-          <span id="cards-played-count">0</span>
+          <span class="text-amber-400">Actions Taken</span>
+          <span id="actions-count">0</span>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Card Play Modal -->
+  <!-- Card Modal -->
   <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center z-50" onclick="if(event.target===this) hideModal()">
     <div class="bg-[#3a2f1f] border-4 border-amber-800 rounded-2xl max-w-sm w-[92%] max-h-[90vh] overflow-y-auto">
       <div id="modal-card" class="p-6"></div>
       <div class="flex border-t border-amber-800 p-4 gap-3">
-        <button onclick="hideModal()" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl">Cancel</button>
-        <button id="modal-play-btn" onclick="confirmPlayCard()" class="flex-1 py-3 bg-emerald-700 hover:bg-emerald-600 rounded-xl font-medium">Play Policy</button>
+        <button onclick="hideModal()" class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 rounded-xl">Close</button>
+        <button id="modal-play-btn" onclick="confirmPlay()" class="flex-1 py-3 bg-emerald-700 hover:bg-emerald-600 rounded-xl font-medium">Use This</button>
       </div>
     </div>
   </div>
 
-  <!-- Game Over Modal -->
+  <!-- Game Over -->
   <div id="game-over-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50" onclick="if(event.target===this) hideGameOver()">
     <div class="bg-[#2c2118] border-4 border-amber-800 rounded-2xl p-6 max-w-md w-[92%] text-center">
       <div id="game-over-icon" class="text-7xl mb-4"></div>
@@ -172,62 +161,61 @@
           <div id="final-score" class="text-4xl text-emerald-300">0</div>
         </div>
         <div>
-          <div class="text-amber-400 text-xs">Policies</div>
-          <div id="final-cards" class="text-4xl text-amber-300">0</div>
+          <div class="text-amber-400 text-xs">Actions</div>
+          <div id="final-actions" class="text-4xl text-amber-300">0</div>
         </div>
       </div>
       <div class="flex gap-3">
-        <button onclick="hideGameOver(); restartGame()" class="flex-1 py-4 bg-amber-800 hover:bg-amber-700 rounded-xl">Play Again</button>
+        <button onclick="hideGameOver(); restartGame()" class="flex-1 py-4 bg-amber-800 hover:bg-amber-700 rounded-xl">Try Again</button>
       </div>
     </div>
   </div>
 
   <script>
     // ────────────────────────────────────────────────
-    //  CARD DATA (shortened a bit for clarity)
+    //  CARDS – Survival vs Hardships
     // ────────────────────────────────────────────────
     const playerDeck = [
-      {id:1, name:"Emergency Banking Act", emoji:"🏦", value:18, heal:8, description:"Closed weak banks, restored trust", fact:"Over $1B returned in days", type:"policy"},
-      {id:2, name:"Civilian Conservation Corps", emoji:"🌲", value:22, heal:5, description:"Jobs planting trees & building parks", fact:"2.5 million young men employed", type:"policy"},
-      {id:3, name:"Works Progress Administration", emoji:"🏗️", value:28, heal:0, description:"Massive public works program", fact:"Built 650,000 miles of roads", type:"policy"},
-      {id:4, name:"Tennessee Valley Authority", emoji:"⚡", value:20, heal:12, description:"Electricity & flood control", fact:"Largest US power provider by 1940", type:"policy"},
-      {id:5, name:"Social Security Act", emoji:"🛡️", value:12, heal:25, description:"Retirement & unemployment insurance", fact:"Cornerstone of US safety net", type:"policy"},
-      // ... you can add the rest back if you want more cards
+      {id:1, name:"Victory Garden", emoji:"🥕", value:18, heal:10, desc:"Grow your own vegetables in backyard or vacant lot", fact:"Millions planted gardens; saved on food costs", type:"survival"},
+      {id:2, name:"Barter with Neighbors", emoji:"🤝", value:15, heal:12, desc:"Trade skills, food, clothes instead of using cash", fact:"Common during shortages; built community", type:"survival"},
+      {id:3, name:"Civilian Conservation Corps Job", emoji:"🌲", value:22, heal:8, desc:"Young men work planting trees, building parks", fact:"CCC employed over 3 million", type:"survival"},
+      {id:4, name:"Soup Kitchen Line", emoji:"🍲", value:10, heal:18, desc:"Stand in line for free meal at church or charity", fact:"Fed millions; prevented widespread starvation", type:"survival"},
+      {id:5, name:"Odd Jobs & Day Labor", emoji:"🛠️", value:16, heal:9, desc:"Shovel snow, mow lawns, run errands for pennies", fact:"Many survived on small, irregular work", type:"survival"},
+      {id:6, name:"Make Do & Mend", emoji:"🧵", value:12, heal:14, desc:"Patch clothes, darn socks, repair everything", fact:"Motto: 'Use it up, wear it out, make do or do without'", type:"survival"},
+      {id:7, name:"Relief from New Deal", emoji:"🛡️", value:20, heal:15, desc:"Receive food, work, or aid from government programs", fact:"WPA, CCC, FERA helped millions", type:"survival"}
     ];
 
-    const aiDeck = [
-      {id:101, name:"Black Tuesday", emoji:"📉", damage:24, description:"Worst stock market crash day", fact:"$14 billion lost in hours", type:"crisis"},
-      {id:102, name:"Bank Runs", emoji:"🏦", damage:19, description:"Thousands of banks collapsed", fact:"9,000 failed 1930–1933", type:"crisis"},
-      {id:103, name:"Dust Bowl", emoji:"🌪️", damage:22, description:"Severe drought & dust storms", fact:"Millions migrated", type:"crisis"},
-      // ... add more if desired
+    const crisisDeck = [
+      {id:101, name:"Layoffs & Unemployment", emoji:"🚫", damage:22, desc:"Factory closes; no paycheck for months", fact:"Peaked at ~25% unemployment", type:"crisis"},
+      {id:102, name:"Bank Holiday & Savings Lost", emoji:"🏦", damage:18, desc:"Bank closes; life savings gone", fact:"Thousands of banks failed", type:"crisis"},
+      {id:103, name:"Eviction Notice", emoji:"🏠", damage:20, desc:"Can't pay rent; family put out on street", fact:"Hoovervilles appeared nationwide", type:"crisis"},
+      {id:104, name:"Dust Bowl Storm", emoji:"🌪️", damage:24, desc:"Black blizzards ruin crops & health", fact:"Forced massive migration", type:"crisis"},
+      {id:105, name:"Breadline Hunger", emoji:"🍞", damage:16, desc:"Long lines; still go home hungry", fact:"Many relied on charity food", type:"crisis"},
+      {id:106, name:"Foreclosure on Farm/Home", emoji:"🔨", damage:21, desc:"Bank takes property; lose everything", fact:"Hundreds of thousands lost homes", type:"crisis"}
     ];
 
-    // Game State
-    let playerHealth = 100;
-    let depressionHealth = 100;
+    // State
+    let familyHealth = 100;
+    let hardshipLevel = 100;
     let playerHand = [];
     let currentPlayerDeck = [];
-    let currentAIDeck = [];
-    let cardsPlayed = 0;
-    let currentTurn = 1;
-    let recoveryScore = 0;
-    let selectedCard = null;
+    let currentCrisisDeck = [];
+    let actionsTaken = 0;
+    let month = 1;
+    let year = 1930;
     let gameOver = false;
+    let selectedCard = null;
+    let survivalScore = 0;
 
-    // ────────────────────────────────────────────────
-    //  HELPERS
-    // ────────────────────────────────────────────────
-    function shuffle(arr) {
-      return arr.sort(() => Math.random() - 0.5);
-    }
+    function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
 
-    function updateHealth() {
-      const p = Math.max(0, Math.min(100, playerHealth));
-      const d = Math.max(0, Math.min(100, depressionHealth));
-      document.getElementById("player-health").textContent = Math.floor(p);
-      document.getElementById("player-health-bar").style.width = p + "%";
-      document.getElementById("depression-health-text").textContent = Math.floor(d);
-      document.getElementById("depression-health-bar").style.width = d + "%";
+    function updateBars() {
+      const f = Math.max(0, Math.min(100, familyHealth));
+      const h = Math.max(0, Math.min(100, hardshipLevel));
+      document.getElementById("family-health").textContent = Math.floor(f);
+      document.getElementById("family-bar").style.width = f + "%";
+      document.getElementById("hardship-level").textContent = Math.floor(h);
+      document.getElementById("hardship-bar").style.width = h + "%";
     }
 
     function createCardHTML(card, clickable = true) {
@@ -235,18 +223,18 @@
         <div class="card bg-amber-100 text-black rounded-xl p-4 shadow-lg border border-amber-800 h-56 flex flex-col justify-between ${clickable ? 'cursor-pointer' : ''}">
           <div class="flex justify-between">
             <div class="text-4xl">${card.emoji}</div>
-            <div class="text-xs font-bold ${card.type==='policy'?'text-emerald-700':'text-red-700'}">${card.type.toUpperCase()}</div>
+            <div class="text-xs font-bold ${card.type==='survival'?'text-emerald-700':'text-red-700'}">${card.type.toUpperCase()}</div>
           </div>
           <div>
             <div class="font-bold text-lg leading-tight">${card.name}</div>
-            <div class="text-xs text-black/70 mt-1 line-clamp-2">${card.description}</div>
+            <div class="text-xs text-black/70 mt-1 line-clamp-2">${card.desc}</div>
           </div>
           <div class="flex gap-2 text-xs">
-            ${card.type==='policy' ? `
-              <div class="bg-emerald-600 text-white px-3 py-1 rounded-full">Impact ${card.value}</div>
-              ${card.heal ? `<div class="bg-teal-600 text-white px-3 py-1 rounded-full">Heal ${card.heal}</div>` : ''}
+            ${card.type==='survival' ? `
+              <div class="bg-emerald-600 text-white px-3 py-1 rounded-full">Relief ${card.value}</div>
+              ${card.heal ? `<div class="bg-teal-600 text-white px-3 py-1 rounded-full">Hope ${card.heal}</div>` : ''}
             ` : `
-              <div class="bg-red-600 text-white px-3 py-1 rounded-full">Damage ${card.damage}</div>
+              <div class="bg-red-600 text-white px-3 py-1 rounded-full">Strain ${card.damage}</div>
             `}
           </div>
         </div>
@@ -254,24 +242,24 @@
     }
 
     function renderHand() {
-      const container = document.getElementById("player-hand");
-      container.innerHTML = "";
-      playerHand.forEach(card => {
+      const cont = document.getElementById("player-hand");
+      cont.innerHTML = "";
+      playerHand.forEach(c => {
         const div = document.createElement("div");
-        div.innerHTML = createCardHTML(card);
-        div.onclick = () => showCardModal(card);
-        container.appendChild(div);
+        div.innerHTML = createCardHTML(c);
+        div.onclick = () => showCardModal(c);
+        cont.appendChild(div);
       });
       document.getElementById("hand-count").textContent = playerHand.length;
     }
 
-    function log(msg, className = "") {
-      const log = document.getElementById("game-log");
+    function log(msg, cls = "") {
+      const logEl = document.getElementById("game-log");
       const div = document.createElement("div");
-      div.className = `py-2 border-b border-amber-900/30 ${className}`;
+      div.className = `py-2 border-b border-amber-900/40 ${cls}`;
       div.innerHTML = msg;
-      log.appendChild(div);
-      log.scrollTop = log.scrollHeight;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
     }
 
     function drawCard() {
@@ -280,7 +268,7 @@
       playerHand.push(card);
       renderHand();
       document.getElementById("deck-count").textContent = currentPlayerDeck.length;
-      log(`Drew: <strong>${card.name}</strong>`, "text-emerald-400");
+      log(`Found a way: <strong>${card.name}</strong>`, "text-emerald-400");
     }
 
     function showCardModal(card) {
@@ -289,62 +277,68 @@
       document.getElementById("modal-card").innerHTML = `
         ${createCardHTML(card, false)}
         <div class="mt-4 text-sm bg-black/40 p-4 rounded-xl">
-          <div class="text-emerald-400 text-xs uppercase mb-1">History</div>
+          <div class="text-emerald-400 text-xs uppercase mb-1">Real History</div>
           <p class="italic">${card.fact}</p>
         </div>
       `;
       document.getElementById("modal-backdrop").classList.remove("hidden");
     }
 
-    function hideModal() {
-      document.getElementById("modal-backdrop").classList.add("hidden");
-      selectedCard = null;
-    }
+    function hideModal() { document.getElementById("modal-backdrop").classList.add("hidden"); selectedCard = null; }
 
-    function confirmPlayCard() {
+    function confirmPlay() {
       if (!selectedCard) return;
       hideModal();
 
       playerHand = playerHand.filter(c => c.id !== selectedCard.id);
-      depressionHealth = Math.max(0, depressionHealth - selectedCard.value);
-      if (selectedCard.heal) playerHealth = Math.min(100, playerHealth + selectedCard.heal);
+      hardshipLevel = Math.max(0, hardshipLevel - selectedCard.value);
+      if (selectedCard.heal) familyHealth = Math.min(100, familyHealth + selectedCard.heal);
 
-      cardsPlayed++;
-      recoveryScore += Math.floor(selectedCard.value * 1.3);
+      actionsTaken++;
+      survivalScore += Math.floor(selectedCard.value * 1.2 + (selectedCard.heal || 0) * 1.5);
 
       renderHand();
-      updateHealth();
-      document.getElementById("recovery-score").textContent = recoveryScore;
-      document.getElementById("cards-played-count").textContent = cardsPlayed;
+      updateBars();
+      document.getElementById("survival-score").textContent = survivalScore;
+      document.getElementById("actions-count").textContent = actionsTaken;
 
-      log(`Played <strong>${selectedCard.name}</strong> → -${selectedCard.value} Depression ${selectedCard.heal ? `+${selectedCard.heal} Economy` : ''}`, "text-emerald-400");
+      log(`Used: <strong>${selectedCard.name}</strong> → eased hardship ${selectedCard.heal ? `& lifted family spirits` : ''}`, "text-emerald-400");
 
-      setTimeout(aiTurn, 600);
+      setTimeout(nextCrisis, 700);
       checkEnd();
     }
 
-    function aiTurn() {
-      if (gameOver || currentAIDeck.length === 0) return;
-      const crisis = currentAIDeck.pop();
-      document.getElementById("ai-played-card").innerHTML = `
+    function nextCrisis() {
+      if (gameOver || currentCrisisDeck.length === 0) return;
+      const crisis = currentCrisisDeck.pop();
+      document.getElementById("crisis-card").innerHTML = `
         <div class="text-6xl mb-2">${crisis.emoji}</div>
         <div class="font-bold text-red-300">${crisis.name}</div>
         <div class="text-red-400 text-sm mt-1">- ${crisis.damage}</div>
       `;
-      playerHealth = Math.max(0, playerHealth - crisis.damage);
-      log(`Crisis: <strong>${crisis.name}</strong> → -${crisis.damage} Economy`, "text-red-400");
-      updateHealth();
-      currentTurn++;
-      document.getElementById("turn-counter").textContent = String(currentTurn).padStart(2,'0');
-      if (!gameOver) setTimeout(drawCard, 400);
+      familyHealth = Math.max(0, familyHealth - crisis.damage);
+      log(`Hard times hit: <strong>${crisis.name}</strong> → family strained -${crisis.damage}`, "text-red-400");
+      updateBars();
+      advanceTime();
       checkEnd();
     }
 
+    function advanceTime() {
+      month++;
+      if (month > 12) { month = 1; year++; }
+      document.getElementById("turn-counter").textContent = `${["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][month-1]} ${year}`;
+      if (!gameOver) drawCard(); // chance to find new idea each month
+    }
+
+    function waitMonth() {
+      if (!gameOver) nextCrisis();
+    }
+
     function checkEnd() {
-      if (depressionHealth <= 0) {
+      if (hardshipLevel <= 0) {
         gameOver = true;
         showEnd(true);
-      } else if (playerHealth <= 0) {
+      } else if (familyHealth <= 0) {
         gameOver = true;
         showEnd(false);
       }
@@ -352,54 +346,48 @@
 
     function showEnd(won) {
       const m = document.getElementById("game-over-modal");
-      document.getElementById("game-over-icon").textContent = won ? "🎉" : "💀";
-      document.getElementById("game-over-title").textContent = won ? "America Recovered!" : "Depression Won";
+      document.getElementById("game-over-icon").textContent = won ? "🏡" : "😔";
+      document.getElementById("game-over-title").textContent = won ? "Your Family Made It Through" : "Family Could Not Hold On";
       document.getElementById("game-over-subtitle").innerHTML = won 
-        ? "You saved the nation with the New Deal."
-        : "The economy collapsed under pressure.";
-      document.getElementById("final-score").textContent = recoveryScore;
-      document.getElementById("final-cards").textContent = cardsPlayed;
+        ? "You weathered the storm.<br>Life slowly improves by the late 1930s."
+        : "The hardships proved too much.<br>Many families faced this reality.";
+      document.getElementById("final-score").textContent = survivalScore;
+      document.getElementById("final-actions").textContent = actionsTaken;
       m.classList.remove("hidden");
     }
 
-    function hideGameOver() {
-      document.getElementById("game-over-modal").classList.add("hidden");
-    }
-
-    function endTurnEarly() {
-      if (!gameOver) aiTurn();
-    }
+    function hideGameOver() { document.getElementById("game-over-modal").classList.add("hidden"); }
 
     function showRules() {
-      alert("NEW DEAL SHOWDOWN\n\nYou play as FDR.\n• Play New Deal policy cards to reduce Depression strength\n• Heal your economy when possible\n• Survive random historical crises\n• Win by bringing Depression to 0 before your economy hits 0\n\nEnjoy learning 1930s history!");
+      alert("SURVIVING THE DEPRESSION\n\nYou are an ordinary American family in the 1930s.\n• Play survival cards to reduce hardship & keep hope alive\n• Face real crises every month\n• Win by reducing hardship to 0 before family well-being hits 0\n\nEvery card is based on true ways people coped.");
     }
 
     function restartGame() {
       hideGameOver();
-      playerHealth = 100; depressionHealth = 100; cardsPlayed = 0; currentTurn = 1; recoveryScore = 0; gameOver = false;
+      familyHealth = 100; hardshipLevel = 100; actionsTaken = 0; month = 1; year = 1930; survivalScore = 0; gameOver = false;
       currentPlayerDeck = shuffle([...playerDeck]);
-      currentAIDeck = shuffle([...aiDeck]);
+      currentCrisisDeck = shuffle([...crisisDeck]);
       playerHand = currentPlayerDeck.splice(0,3);
-      document.getElementById("game-log").innerHTML = `<div class="text-center text-emerald-400 py-6">March 1933 – FDR takes office</div>`;
-      document.getElementById("turn-counter").textContent = "01";
-      document.getElementById("recovery-score").textContent = "0";
-      document.getElementById("cards-played-count").textContent = "0";
+      document.getElementById("game-log").innerHTML = `<div class="text-center text-emerald-400 py-6">1930 – Hard times begin...</div>`;
+      document.getElementById("turn-counter").textContent = "JAN 1930";
+      document.getElementById("survival-score").textContent = "0";
+      document.getElementById("actions-count").textContent = "0";
       document.getElementById("deck-count").textContent = currentPlayerDeck.length;
-      document.getElementById("ai-played-card").innerHTML = `<div class="text-5xl opacity-40 mb-3">📉</div><p class="text-amber-300/60 text-sm">Waiting...</p>`;
-      updateHealth();
+      document.getElementById("crisis-card").innerHTML = `<div class="text-5xl opacity-40 mb-3">📉</div><p class="text-amber-300/60 text-sm">Waiting...</p>`;
+      updateBars();
       renderHand();
-      log("New game started – Good luck, Mr. President!", "text-amber-300");
+      log("Your family is holding on. What will you try?", "text-amber-300");
     }
 
-    // Start
+    // Init
     window.onload = () => {
       currentPlayerDeck = shuffle([...playerDeck]);
-      currentAIDeck = shuffle([...aiDeck]);
+      currentCrisisDeck = shuffle([...crisisDeck]);
       playerHand = currentPlayerDeck.splice(0,3);
-      updateHealth();
+      updateBars();
       renderHand();
       document.getElementById("deck-count").textContent = currentPlayerDeck.length;
-      log("Your hand is ready. Begin!", "text-emerald-400");
+      log("Another tough month ahead. Your move.", "text-emerald-400");
     };
   </script>
 </body>
