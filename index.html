@@ -1,154 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Depression Survival – Play Button Fixed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dust & Determination – Great Depression Survival Game</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    body { background:#0f0b07; color:#e8d5b5; font-family:Arial,sans-serif; margin:0; padding:12px; }
+    body {
+      background: #1a140f;
+      color: #e8d5b5;
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .newsprint {
+      background: #f5e9d2 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3"/><feColorMatrix type="matrix" values="0.4 0 0 0 0  0 0.35 0 0 0  0 0 0.3 0 0  0 0 0 1 0"/></filter><rect width="100" height="100" filter="url(%23n)" opacity="0.08"/></svg>') repeat;
+      border: 2px solid #8b6f47;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.35);
+    }
     .card {
-      background:#ffe; border:3px solid #8b4513; border-radius:10px; padding:16px; margin:10px;
-      min-height:200px; cursor:pointer; user-select:none; touch-action:manipulation;
+      background: #fdf8ee;
+      border: 3px solid #7a5c3a;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+      user-select: none;
+      touch-action: manipulation;
     }
-    .card:active { background:#ffd; transform:scale(1.03); }
-    #modal { 
-      position:fixed; inset:0; background:rgba(0,0,0,0.8); display:none; 
-      align-items:center; justify-content:center; z-index:1000;
+    .card:hover, .card:active {
+      transform: translateY(-6px) scale(1.035);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+      border-color: #c9a875;
     }
-    #modal-box {
-      background:#ffe; border:5px solid #8b4513; border-radius:12px;
-      width:90%; max-width:420px; padding:24px; color:#333;
+    .health-bar-container {
+      background: #3a2a1f;
+      border: 2px solid #8b6f47;
+      border-radius: 9999px;
+      overflow: hidden;
     }
-    button { padding:12px 28px; font-size:1.1rem; border-radius:8px; cursor:pointer; margin:8px; }
-    .play-btn { background:#28a745; color:white; }
-    .close-btn { background:#6c757d; color:white; }
-    #log {
-      background:#111; color:#0f0; font-family:monospace; padding:12px;
-      height:160px; overflow-y:auto; border:2px solid #444; margin:16px 0;
+    #modal-backdrop {
+      background: rgba(0,0,0,0.85);
+    }
+    #game-log::-webkit-scrollbar {
+      width: 6px;
+    }
+    #game-log::-webkit-scrollbar-track {
+      background: #2d2218;
+    }
+    #game-log::-webkit-scrollbar-thumb {
+      background: #8b6f47;
+      border-radius: 3px;
     }
   </style>
 </head>
-<body>
+<body class="antialiased">
 
-<h2 style="text-align:center; color:#ffcc66;">Depression Survival – Play Button Debug</h2>
-
-<div id="log">Game starting…\nClick card → modal opens → press green PLAY CARD button</div>
-
-<h3>Your hand (click to view/play):</h3>
-<div id="hand"></div>
-
-<button onclick="draw()" style="background:#ffc107; color:black; display:block; margin:20px auto;">
-  Draw one card
-</button>
-
-<!-- MODAL -->
-<div id="modal">
-  <div id="modal-box">
-    <h2 id="m-title"></h2>
-    <p id="m-desc" style="margin:16px 0;"></p>
-    <p id="m-stats" style="font-weight:bold;"></p>
-    <div style="text-align:center;">
-      <button class="close-btn" onclick="closeModal()">Close</button>
-      <button class="play-btn" 
-              onclick="playSelectedCard(); return false;">
-        PLAY CARD
+  <!-- Header -->
+  <header class="bg-[#1f160e] border-b-4 border-[#8b6f47] sticky top-0 z-50 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="text-4xl drop-shadow">🌾</div>
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold text-[#e8c39c] tracking-tight">DUST & DETERMINATION</h1>
+          <p class="text-[#c9a875] text-sm md:text-base">A 1930s family survival game</p>
+        </div>
+      </div>
+      <button onclick="location.reload()" class="bg-[#8b6f47] hover:bg-[#a68a5f] px-5 py-2.5 rounded-lg text-white font-medium shadow-md">
+        Restart
       </button>
     </div>
-  </div>
-</div>
+  </header>
 
-<script>
-// ────────────── Global selected card ──────────────
-let selected = null;
+  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-// ────────────── Cards ──────────────
-const deck = [
-  {id:1, n:"Victory Garden", e:"🥕", v:18, h:10, d:"Plant food at home"},
-  {id:2, n:"Barter",         e:"🤝", v:15, h:12, d:"Trade with neighbors"},
-  {id:3, n:"CCC Work",       e:"🌲", v:22, h:8,  d:"Son joins work camp"},
-  {id:4, n:"Soup Kitchen",   e:"🍲", v:10, h:18, d:"Get free meal"}
-];
-
-let hand = deck.slice(0,3); // start with 3 cards
-
-function log(txt) {
-  const el = document.getElementById('log');
-  el.innerHTML += txt + '\n';
-  el.scrollTop = el.scrollHeight;
-  console.log(txt);
-}
-
-function render() {
-  const cont = document.getElementById('hand');
-  cont.innerHTML = '';
-  hand.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `
-      <div style="font-size:3rem; text-align:center;">${c.e}</div>
-      <div style="font-weight:bold; text-align:center;">${c.n}</div>
-      <div style="text-align:center; color:#555; margin-top:8px;">${c.d}</div>
-      <div style="margin-top:12px; text-align:center;">
-        <span style="background:#28a745;color:white;padding:4px 10px;border-radius:12px;">-${c.v} hardship</span>
-        <span style="background:#17a2b8;color:white;padding:4px 10px;border-radius:12px;">+${c.h} health</span>
+    <!-- Left – Hardship -->
+    <section class="lg:col-span-3 order-3 lg:order-1 newsprint p-6 rounded-xl">
+      <h2 class="text-red-700 text-xl font-bold mb-4 tracking-wide">HARDSHIP INDEX</h2>
+      <div class="mb-6">
+        <div class="flex justify-between text-sm text-red-300 mb-1">
+          <span>Pressure</span>
+          <span id="hardship-value">100</span>
+        </div>
+        <div class="health-bar-container h-5 rounded-full">
+          <div id="hardship-bar" class="h-full bg-gradient-to-r from-red-700 via-red-500 to-orange-500 w-full transition-all duration-700"></div>
+        </div>
       </div>
-    `;
-    div.onclick = () => openModal(c);
-    cont.appendChild(div);
-  });
-}
+      <div class="text-center">
+        <p class="text-[#8b6f47] text-xs uppercase tracking-wider mb-3">Latest Crisis</p>
+        <div id="crisis-display" class="newsprint p-5 min-h-[180px] flex flex-col items-center justify-center text-center rounded-lg">
+          <div class="text-6xl opacity-40 mb-4">📉</div>
+          <p class="text-gray-700 text-sm">Waiting for the next blow…</p>
+        </div>
+      </div>
+    </section>
 
-function openModal(card) {
-  log(`→ Card clicked: ${card.n} (id ${card.id})`);
-  selected = card;
+    <!-- Center – Gameplay -->
+    <section class="lg:col-span-6 order-1 flex flex-col gap-6">
 
-  document.getElementById('m-title').textContent = card.n + '  ' + card.e;
-  document.getElementById('m-desc').textContent = card.d;
-  document.getElementById('m-stats').innerHTML = 
-    `Reduces hardship by <b>${card.v}</b><br>Increases family health by <b>${card.h}</b>`;
+      <!-- Log -->
+      <div id="game-log" class="newsprint p-5 h-48 md:h-64 overflow-y-auto rounded-xl text-sm leading-relaxed font-mono text-[#d9c2a3]">
+        <div class="text-center text-[#8b6f47] py-10 italic">Late October 1929 – the bottom begins to fall out…</div>
+      </div>
 
-  document.getElementById('modal').style.display = 'flex';
-}
+      <!-- Family Health -->
+      <div class="newsprint p-6 rounded-xl text-center">
+        <div class="text-green-700 uppercase text-sm font-bold tracking-wider mb-3">FAMILY CONDITION</div>
+        <div class="flex items-center justify-center gap-6">
+          <div id="health-value" class="text-6xl md:text-7xl font-bold text-green-600 drop-shadow">100</div>
+          <div class="h-12 w-px bg-[#8b6f47]"></div>
+          <div class="w-48 md:w-64">
+            <div class="health-bar-container h-6 rounded-full">
+              <div id="health-bar" class="h-full bg-gradient-to-r from-green-600 via-lime-500 to-emerald-400 w-full transition-all duration-700"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-function closeModal() {
-  log("Modal closed (via Close button)");
-  document.getElementById('modal').style.display = 'none';
-  selected = null;
-}
+      <!-- Hand -->
+      <div class="newsprint p-6 rounded-xl">
+        <div class="flex justify-between items-center mb-4">
+          <div class="text-[#6b4c2e] font-bold tracking-wide">YOUR SURVIVAL CARDS <span id="hand-count" class="text-xl">(3)</span></div>
+          <button onclick="drawCard()" class="text-[#8b6f47] hover:text-black flex items-center gap-2 text-sm">
+            <i class="fas fa-redo-alt"></i> Scrounge more
+            <span id="deck-count" class="bg-[#6b4c2e] text-white px-3 py-1 rounded-full text-xs">12</span>
+          </button>
+        </div>
+        <div id="player-hand" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+      </div>
 
-function playSelectedCard() {
-  if (!selected) {
-    log("BUG: No card selected when PLAY was pressed!", "color:red");
-    alert("No card selected – try clicking a card again.");
-    return;
-  }
+      <!-- Controls -->
+      <div class="flex justify-center">
+        <button onclick="advanceMonth()" class="bg-[#6b4c2e] hover:bg-[#8b6f47] text-white px-8 py-4 rounded-xl flex items-center gap-3 text-lg shadow-lg transition-colors">
+          <i class="fas fa-calendar-day"></i> Endure Another Month
+        </button>
+      </div>
 
-  log(`PLAY button pressed → executing ${selected.n}`);
+    </section>
 
-  // Apply effects
-  hardshipLevel = Math.max(0, (window.hardshipLevel || 100) - selected.v);
-  familyHealth  = Math.min(100, (window.familyHealth || 100) + selected.h);
+    <!-- Right – Stats -->
+    <section class="lg:col-span-3 order-2 lg:order-3 newsprint p-6 rounded-xl text-center">
+      <div class="text-[#6b4c2e] uppercase text-sm tracking-wider mb-4">RECORD</div>
+      <div id="date-display" class="text-5xl font-bold text-[#a63232] mb-6">JAN 1930</div>
+      <div class="space-y-4 text-sm">
+        <div class="flex justify-between">
+          <span class="text-[#8b6f47]">Endurance Score</span>
+          <span id="score-value" class="text-green-500 font-bold">0</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-[#8b6f47]">Actions Taken</span>
+          <span id="actions-value">0</span>
+        </div>
+      </div>
+    </section>
 
-  // Remove from hand
-  hand = hand.filter(c => c.id !== selected.id);
-  render();
+  </main>
 
-  // Update display (simple version)
-  document.getElementById('log').innerHTML += 
-    `\nPlayed ${selected.n} → hardship now ~${hardshipLevel}, health now ~${familyHealth}\n`;
+  <!-- Modal -->
+  <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/85 flex items-center justify-center z-50">
+    <div class="newsprint border-4 border-[#8b6f47] rounded-2xl max-w-md w-[92%] max-h-[88vh] overflow-y-auto shadow-2xl">
+      <div id="modal-card" class="p-7"></div>
+      <div class="flex border-t-2 border-[#8b6f47] p-5 gap-4">
+        <button onclick="closeModal()" class="flex-1 py-3.5 bg-gray-800 hover:bg-gray-700 text-white rounded-xl transition-colors">Close</button>
+        <button onclick="playCurrentCard()" class="flex-1 py-3.5 bg-green-700 hover:bg-green-600 text-white rounded-xl font-semibold transition-colors">Use This</button>
+      </div>
+    </div>
+  </div>
 
-  closeModal();
-  log("Card successfully played! ✓", "color:#0f0; font-weight:bold");
-}
+  <script>
+    // ────────────────────────────────────────────────
+    //  CARDS
+    // ────────────────────────────────────────────────
+    const survivalCards = [
+      {id:1, name:"Victory Garden",    emoji:"🥕", value:18, heal:10, desc:"Plant every spare patch with potatoes, beans, squash", fact:"By 1943, ~20 million gardens produced up to 40% of vegetables consumed"},
+      {id:2, name:"Neighborhood Barter", emoji:"🤝", value:15, heal:12, desc:"Trade eggs, mending, firewood – anything but cash", fact:"Barter networks kept many families fed when money vanished"},
+      {id:3, name:"CCC Enrollment",     emoji:"🌲", value:22, heal:8,  desc:"Son joins Civilian Conservation Corps – $30/month sent home", fact:"Over 3 million young men worked planting trees, fighting fires"},
+      {id:4, name:"Soup Kitchen Line",  emoji:"🍲", value:10, heal:18, desc:"Wait hours for bread & thin soup at church or mission", fact:"Charity kitchens fed millions during peak hunger years"},
+      {id:5, name:"Make Do & Mend",     emoji:"🧵", value:12, heal:14, desc:"Turn flour sacks into clothes, darn socks till nothing left", fact:"Government promoted frugality – 'Use it up, wear it out'"},
+      {id:6, name:"Day Labor Hustle",   emoji:"🛠️", value:16, heal:9,  desc:"Shovel coal, clean yards, haul scrap – any pennies count", fact:"Men walked miles daily looking for irregular small jobs"},
+      {id:7, name:"WPA Assignment",     emoji:"🛤️", value:20, heal:15, desc:"Get on WPA crew building roads, schools, parks", fact:"Employed over 8.5 million people at its height"}
+    ];
 
-// Start
-window.onload = () => {
-  window.hardshipLevel = 100;
-  window.familyHealth = 100;
-  render();
-  log("Ready. Click any card, then press PLAY CARD in the popup.", "color:#0ff");
-};
-</script>
+    const crisisCards = [
+      {id:101, name:"Mass Layoffs",     emoji:"🚪", damage:22, desc:"Factory gates locked – no paycheck for months", fact:"Unemployment reached ~25% in 1933"},
+      {id:102, name:"Bank Collapse",    emoji:"🏦", damage:18, desc:"Bank shutters overnight – life savings gone", fact:"Over 9,000 banks failed 1929–1933"},
+      {id:103, name:"Eviction Notice",  emoji:"🚚", damage:20, desc:"Landlord puts furniture on sidewalk", fact:"Hundreds of thousands lost homes – shantytowns grew"},
+      {id:104, name:"Black Blizzard",   emoji:"🌪️", damage:24, desc:"Dust storm blinds, chokes, buries everything", fact:"Dust Bowl forced ~2.5 million to leave the Great Plains"},
+      {id:105, name:"Empty Cupboard",   emoji:"🏚️", damage:16, desc:"Last jar of beans gone – children crying", fact:"Malnutrition widespread despite charity efforts"},
+      {id:106, name:"Farm Foreclosure", emoji:"🔨", damage:21, desc:"Auction sign on gate – land lost forever", fact:"One in four American farms foreclosed during the decade"}
+    ];
+
+    // ────────────────────────────────────────────────
+    //  STATE
+    // ────────────────────────────────────────────────
+    let familyHealth    = 100;
+    let hardshipLevel   = 100;
+    let playerHand      = [];
+    let playerDeck      = [...survivalCards];
+    let crisisDeck      = [...crisisCards];
+    let actionsTaken    = 0;
+    let survivalScore   = 0;
+    let month           = 1;
+    let year            = 1930;
+    let gameOver        = false;
+    let selectedCard    = null;
+
+    const monthNames = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+    // ────────────────────────────────────────────────
+    //  HELPERS
+    // ────────────────────────────────────────────────
+    function shuffle(a) { return a.sort(()=>Math.random()-0.5); }
+
+    function updateDisplay() {
+      document.getElementById("health-value").textContent = Math.max(0, familyHealth);
+      document.getElementById("health-bar").style.width = Math.max(0, Math.min(100, familyHealth)) + "%";
+
+      document.getElementById("hardship-value").textContent = Math.max(0, hardshipLevel);
+      document.getElementById("hardship-bar").style.width = Math.max(0, Math.min(100, hardshipLevel)) + "%";
+
+      document.getElementById("hand-count").textContent = `(${playerHand.length})`;
+      document.getElementById("deck-count").textContent = playerDeck.length;
+      document.getElementById("score-value").textContent = survivalScore;
+      document.getElementById("actions-value").textContent = actionsTaken;
+      document.getElementById("date-display").textContent = `${monthNames[month-1]} ${year}`;
+    }
+
+    function log(msg, colorClass = "text-[#d9c2a3]") {
+      const logEl = document.getElementById("game-log");
+      const entry = document.createElement("div");
+      entry.className = `py-1.5 border-b border-[#8b6f47]/30 ${colorClass}`;
+      entry.innerHTML = msg;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function createCardElement(card) {
+      const div = document.createElement("div");
+      div.className = "card p-4 h-64 flex flex-col justify-between";
+      div.innerHTML = `
+        <div class="text-6xl text-center mb-2">${card.emoji}</div>
+        <div class="text-center font-bold text-xl leading-tight mb-2">${card.name}</div>
+        <div class="text-center text-sm text-gray-700 line-clamp-2 mb-3">${card.desc}</div>
+        <div class="flex gap-2 justify-center text-xs">
+          <span class="bg-green-700 text-white px-3 py-1.5 rounded-full">Ease ${card.value}</span>
+          ${card.heal ? `<span class="bg-teal-700 text-white px-3 py-1.5 rounded-full">Hope ${card.heal}</span>` : ''}
+        </div>
+      `;
+      div.onclick = () => showCardModal(card);
+      return div;
+    }
+
+    function renderHand() {
+      const container = document.getElementById("player-hand");
+      container.innerHTML = "";
+      playerHand.forEach(card => container.appendChild(createCardElement(card)));
+    }
+
+    function drawCard(silent = false) {
+      if (playerDeck.length === 0 || playerHand.length >= 6) return;
+      const card = playerDeck.pop();
+      playerHand.push(card);
+      renderHand();
+      updateDisplay();
+      if (!silent) log(`Found: <strong>${card.name}</strong>`, "text-green-600 font-medium");
+    }
+
+    function showCardModal(card) {
+      selectedCard = card;
+      document.getElementById("modal-card").innerHTML = `
+        <div class="text-7xl text-center mb-4">${card.emoji}</div>
+        <h3 class="text-2xl font-bold text-center mb-3">${card.name}</h3>
+        <p class="text-center text-gray-700 mb-5">${card.desc}</p>
+        <div class="flex gap-3 justify-center text-sm mb-6">
+          <span class="bg-green-700 text-white px-5 py-2 rounded-full">Reduces hardship by ${card.value}</span>
+          ${card.heal ? `<span class="bg-teal-700 text-white px-5 py-2 rounded-full">Restores family by ${card.heal}</span>` : ''}
+        </div>
+        <div class="bg-[#2f1e12]/30 p-4 rounded-lg text-sm italic border border-[#8b6f47]/40">
+          <div class="text-[#8b6f47] uppercase text-xs mb-2 tracking-wider">Historical note</div>
+          ${card.fact}
+        </div>
+      `;
+      document.getElementById("modal-backdrop").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("modal-backdrop").classList.add("hidden");
+      selectedCard = null;
+    }
+
+    function playCurrentCard() {
+      if (!selectedCard) {
+        log("No card selected!", "text-red-500");
+        return;
+      }
+
+      const card = selectedCard;
+      closeModal();
+
+      hardshipLevel = Math.max(0, hardshipLevel - card.value);
+      familyHealth  = Math.min(100, familyHealth + (card.heal || 0));
+
+      playerHand = playerHand.filter(c => c.id !== card.id);
+      renderHand();
+
+      actionsTaken++;
+      survivalScore += Math.floor(card.value * 1.4 + (card.heal || 0) * 1.8);
+
+      updateDisplay();
+
+      log(`Used <strong>${card.name}</strong> → hardship -${card.value}${card.heal ? `, family +${card.heal}` : ''}`, "text-green-600 font-medium");
+
+      setTimeout(advanceMonth, 800);
+    }
+
+    function advanceMonth() {
+      if (gameOver) return;
+
+      if (crisisDeck.length > 0 && Math.random() > 0.25) {
+        const crisis = crisisDeck.pop();
+        familyHealth = Math.max(0, familyHealth - crisis.damage);
+        document.getElementById("crisis-display").innerHTML = `
+          <div class="text-7xl mb-4">${crisis.emoji}</div>
+          <div class="font-bold text-xl text-red-600 mb-2">${crisis.name}</div>
+          <div class="text-red-400 text-sm">Family loses ${crisis.damage} condition</div>
+        `;
+        log(`Hardship strikes: <strong>${crisis.name}</strong> → -${crisis.damage} family condition`, "text-red-600 font-medium");
+      }
+
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+      }
+
+      updateDisplay();
+
+      if (Math.random() > 0.35) drawCard(true);
+
+      checkEndGame();
+    }
+
+    function checkEndGame() {
+      if (hardshipLevel <= 0) {
+        gameOver = true;
+        alert("Your family made it through the worst of the Depression!\n\nEndurance score: " + survivalScore + "\nActions taken: " + actionsTaken);
+      } else if (familyHealth <= 0) {
+        gameOver = true;
+        alert("The hardships proved too much…\n\nYour family could not hold on.\nScore: " + survivalScore);
+      }
+    }
+
+    // ────────────────────────────────────────────────
+    //  START
+    // ────────────────────────────────────────────────
+    playerDeck = shuffle(playerDeck);
+    crisisDeck = shuffle(crisisDeck);
+    playerHand = playerDeck.splice(0, 3);
+
+    renderHand();
+    updateDisplay();
+    log("Another hard winter ahead. What will you try first?", "text-[#d4a373] font-medium");
+  </script>
 </body>
 </html>
