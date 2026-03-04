@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEW DEAL SHOWDOWN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;family=Source+Serif+4:wght@400;600&amp;display=swap');
+        
+        :root {
+            --sepia: #d4b38a;
+        }
+        
+        body {
+            background: linear-gradient(180deg, #2c2118 0%, #1a140f 100%);
+            font-family: 'Source Serif 4', serif;
+        }
+        
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .card {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+        }
+        
+        .card:hover {
+            transform: scale(1.08) rotate(2deg);
+            box-shadow: 0 35px 60px -15px rgb(0 0 0 / 0.6);
+        }
+        
+        .played-card {
+            animation: playAnim 800ms forwards;
+        }
+
+        @keyframes playAnim {
+            0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .health-bar {
+            transition: width 1s ease-out;
+        }
+
+        .newspaper-bg {
+            background-image: 
+                linear-gradient(rgba(212, 179, 138, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 179, 138, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .log-entry {
+            animation: logFade 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="text-amber-100 min-h-screen pb-12">
+    <div class="max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <div class="border-b border-amber-900/50 bg-black/60 backdrop-blur-md sticky top-0 z-50">
+            <div class="flex items-center justify-between px-8 py-5">
+                <div class="flex items-center gap-x-4">
+                    <div class="w-14 h-14 bg-amber-900 rounded-full flex items-center justify-center text-4xl shadow-inner">📉</div>
+                    <div>
+                        <h1 class="title-font text-5xl tracking-tighter text-amber-200">NEW DEAL</h1>
+                        <p class="text-amber-400 text-sm tracking-[3px] -mt-2">SHOWDOWN • 1929-1939</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-x-8 text-sm">
+                    <button onclick="showRules()" 
+                            class="flex items-center gap-x-2 hover:text-amber-300 transition-colors">
+                        <i class="fa-solid fa-book"></i>
+                        <span>HISTORY BRIEFING</span>
+                    </button>
+                    <button onclick="restartGame()" 
+                            class="px-6 py-2 bg-amber-900 hover:bg-amber-800 rounded-full text-sm font-medium transition-all flex items-center gap-x-2">
+                        <i class="fa-solid fa-rotate"></i>
+                        <span>RESTART THE DECADE</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6 p-8">
+            
+            <!-- LEFT: DEPRESSION SIDE -->
+            <div class="col-span-12 lg:col-span-3 space-y-6">
+                <div class="newspaper-bg border-4 border-amber-900 bg-[#3a2f1f] p-6 rounded-3xl h-full">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center gap-x-3 bg-black/70 px-6 py-2 rounded-2xl">
+                            <div class="w-5 h-5 bg-red-600 rounded-full animate-pulse"></div>
+                            <span class="uppercase text-red-400 text-xs tracking-widest font-medium">THE GREAT DEPRESSION</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Depression Health -->
+                    <div class="mb-8">
+                        <div class="flex justify-between text-xs mb-2 text-red-300">
+                            <span>DEPRESSION STRENGTH</span>
+                            <span id="depression-health-text" class="font-mono">100</span>
+                        </div>
+                        <div class="h-6 bg-black/60 rounded-3xl overflow-hidden border border-red-900">
+                            <div id="depression-health-bar" 
+                                 class="health-bar h-full w-[100%] bg-gradient-to-r from-red-700 to-red-500"></div>
+                        </div>
+                    </div>
+
+                    <!-- AI Played Card -->
+                    <div class="text-center">
+                        <p class="text-[10px] text-amber-400 mb-3 tracking-widest">LATEST CRISIS</p>
+                        <div id="ai-played-card" 
+                             class="min-h-[280px] bg-[#2c2118] border-2 border-red-800 rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all">
+                            <div class="text-6xl mb-4 opacity-30">📉</div>
+                            <p class="text-amber-400/50 text-sm">Waiting for your move...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER: GAME BOARD -->
+            <div class="col-span-12 lg:col-span-6 space-y-8">
+                
+                <!-- LOG -->
+                <div class="bg-black/70 border border-amber-900 rounded-3xl p-6 h-64 overflow-y-auto newspaper-bg" id="game-log">
+                    <div class="text-center text-amber-400/60 text-xs py-8">
+                        <i class="fa-solid fa-scroll"></i><br>
+                        HISTORY WILL REMEMBER YOUR CHOICES
+                    </div>
+                </div>
+
+                <!-- CENTER STATUS -->
+                <div class="flex justify-center items-center gap-8">
+                    <div onclick="showPlayerCardModal()" 
+                         class="cursor-pointer text-center">
+                        <div class="text-[10px] text-emerald-400 tracking-widest mb-1">YOUR ECONOMY</div>
+                        <div class="flex items-center gap-x-3">
+                            <div class="text-7xl font-mono font-bold text-emerald-300" id="player-health">100</div>
+                            <div class="h-12 w-px bg-amber-900"></div>
+                            <div>
+                                <div id="player-health-bar-container" class="w-52">
+                                    <div class="h-3 bg-black/60 rounded-3xl overflow-hidden">
+                                        <div id="player-health-bar" 
+                                             class="health-bar h-full w-[100%] bg-gradient-to-r from-emerald-500 to-teal-400"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PLAYER HAND -->
+                <div>
+                    <div class="flex justify-between items-baseline mb-4 px-2">
+                        <div class="text-xs uppercase tracking-widest text-amber-400">YOUR NEW DEAL POLICIES • <span id="hand-count">3</span>/5</div>
+                        <div onclick="drawCard()" 
+                             class="cursor-pointer flex items-center gap-x-2 text-xs hover:text-white transition-colors">
+                            <span>DRAW FROM DECK</span>
+                            <span id="deck-count" class="font-mono bg-amber-900 text-amber-300 px-3 py-1 rounded-full text-[10px]">12</span>
+                        </div>
+                    </div>
+                    
+                    <div id="player-hand" 
+                         class="grid grid-cols-3 sm:grid-cols-5 gap-6">
+                        <!-- Cards injected by JS -->
+                    </div>
+                </div>
+
+                <!-- CONTROLS -->
+                <div class="flex justify-center gap-x-4">
+                    <button onclick="endTurnEarly()" 
+                            class="px-8 py-4 bg-amber-950 hover:bg-amber-900 border border-amber-700 rounded-2xl text-sm flex items-center gap-x-3 transition-all">
+                        <i class="fa-solid fa-forward"></i>
+                        <span>END TURN (SKIP DRAW)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT: STATS &amp; INFO -->
+            <div class="col-span-12 lg:col-span-3 space-y-6">
+                <div class="bg-[#2c2118] border border-amber-900 rounded-3xl p-6">
+                    <div class="text-center mb-6">
+                        <div class="text-xs text-amber-400">TURN</div>
+                        <div id="turn-counter" class="text-6xl font-mono font-bold text-amber-200">01</div>
+                    </div>
+                    
+                    <div class="space-y-6 text-xs">
+                        <!-- Score -->
+                        <div class="flex justify-between border-b border-amber-900 pb-4">
+                            <span class="text-amber-400">RECOVERY SCORE</span>
+                            <span id="recovery-score" class="font-mono text-2xl text-emerald-300">0</span>
+                        </div>
+                        
+                        <!-- Cards played -->
+                        <div>
+                            <div class="flex justify-between text-amber-400 mb-2">
+                                <span>POLICIES ENACTED</span>
+                                <span id="cards-played-count">0</span>
+                            </div>
+                            <div class="h-2 bg-black/50 rounded-full overflow-hidden">
+                                <div id="progress-bar" class="h-2 bg-amber-400 w-0"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DECK INFO -->
+                <div class="text-[10px] bg-black/40 border border-amber-800 p-5 rounded-3xl leading-relaxed">
+                    <div class="flex gap-x-3 mb-4">
+                        <i class="fa-solid fa-layer-group text-amber-400"></i>
+                        <div class="uppercase tracking-widest">Your Policy Deck</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-[10px]">
+                        <div class="bg-black/60 p-3 rounded-2xl">
+                            <div class="text-emerald-400">15 TOTAL CARDS</div>
+                            <div class="text-amber-500 text-[9px]">New Deal legislation &amp; programs</div>
+                        </div>
+                        <div class="bg-black/60 p-3 rounded-2xl">
+                            <div class="text-red-400">15 CRISIS CARDS</div>
+                            <div class="text-amber-500 text-[9px]">Historical disasters</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showRules()" 
+                        class="w-full py-6 border border-dashed border-amber-700 hover:border-amber-400 rounded-3xl text-xs tracking-widest transition-colors flex items-center justify-center gap-x-3">
+                    <i class="fa-solid fa-question-circle"></i>
+                    WHAT WAS THE GREAT DEPRESSION?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD MODAL -->
+    <div onclick="if(event.target.id === 'modal-backdrop') hideModal()" id="modal-backdrop"
+         class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[999]">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="max-w-md w-full mx-4 bg-[#3a2f1f] border-8 border-amber-900 rounded-3xl overflow-hidden shadow-2xl">
+            
+            <!-- Modal Card Display -->
+            <div id="modal-card" class="p-8">
+                <!-- Filled by JS -->
+            </div>
+            
+            <div class="bg-black/60 p-6 flex gap-x-4">
+                <button onclick="hideModal()" 
+                        class="flex-1 py-4 text-sm border border-amber-700 hover:bg-black/40 rounded-2xl transition-colors">
+                    CANCEL
+                </button>
+                <button onclick="confirmPlayCard()" 
+                        id="modal-play-btn"
+                        class="flex-1 py-4 text-sm bg-emerald-700 hover:bg-emerald-600 rounded-2xl transition-colors font-medium">
+                    ENACT THIS POLICY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER MODAL -->
+    <div id="game-over-modal" onclick="if(event.target.id === 'game-over-backdrop') hideGameOver()" 
+         class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-[999]">
+        <div class="max-w-lg w-full bg-[#2c2118] border-8 border-amber-900 rounded-3xl p-10 text-center">
+            <div id="game-over-icon" class="text-8xl mb-6"></div>
+            <h2 id="game-over-title" class="title-font text-5xl mb-2"></h2>
+            <p id="game-over-subtitle" class="text-amber-400 mb-8"></p>
+            
+            <div class="bg-black/50 rounded-2xl p-6 mb-10 text-left text-sm">
+                <div class="grid grid-cols-2 gap-x-8 gap-y-6">
+                    <div>
+                        <div class="text-amber-400 text-xs">FINAL RECOVERY SCORE</div>
+                        <div id="final-score" class="text-6xl font-mono text-emerald-300">142</div>
+                    </div>
+                    <div>
+                        <div class="text-amber-400 text-xs">POLICIES ENACTED</div>
+                        <div id="final-cards" class="text-6xl font-mono text-amber-300">12</div>
+                    </div>
+                    <div>
+                        <div class="text-amber-400 text-xs">TURNS SURVIVED</div>
+                        <div id="final-turns" class="text-6xl font-mono text-amber-300">18</div>
+                    </div>
+                    <div>
+                        <div class="text-amber-400 text-xs">ECONOMY LEFT</div>
+                        <div id="final-health" class="text-6xl font-mono text-emerald-300">42%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="hideGameOver(); restartGame()" 
+                        class="flex-1 py-5 bg-amber-900 hover:bg-amber-800 rounded-2xl text-lg font-medium">
+                    TRY ANOTHER TERM
+                </button>
+                <button onclick="window.location.reload()" 
+                        class="flex-1 py-5 bg-emerald-700 hover:bg-emerald-600 rounded-2xl text-lg font-medium">
+                    NEW GAME
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CARD DATABASE ====================
+        let playerDeck = [
+            {
+                id: 1,
+                name: "EMERGENCY BANKING ACT",
+                emoji: "🏦",
+                value: 18,
+                heal: 8,
+                description: "Roosevelt closes failing banks for 4 days. Reopens only the sound ones.",
+                fact: "March 9, 1933 — Within 3 days, over $1 billion in deposits returned to banks.",
+                type: "policy"
+            },
+            {
+                id: 2,
+                name: "CIVILIAN CONSERVATION CORPS",
+                emoji: "🌲",
+                value: 22,
+                heal: 5,
+                description: "2.5 million young men plant 3 billion trees and build parks.",
+                fact: "1933–1942 — CCC workers constructed 711 state parks still used today.",
+                type: "policy"
+            },
+            {
+                id: 3,
+                name: "WORKS PROGRESS ADMINISTRATION",
+                emoji: "🏗️",
+                value: 28,
+                heal: 0,
+                description: "Employs 8.5 million building roads, bridges, schools, and murals.",
+                fact: "1935–1943 — WPA built 650,000 miles of roads and 125,000 public buildings.",
+                type: "policy"
+            },
+            {
+                id: 4,
+                name: "TENNESSEE VALLEY AUTHORITY",
+                emoji: "⚡",
+                value: 20,
+                heal: 12,
+                description: "Brings electricity and flood control to the rural South.",
+                fact: "1933 — TVA became the largest electricity provider in the U.S. by 1940.",
+                type: "policy"
+            },
+            {
+                id: 5,
+                name: "SOCIAL SECURITY ACT",
+                emoji: "🛡️",
+                value: 12,
+                heal: 25,
+                description: "Creates the first national retirement and unemployment insurance.",
+                fact: "1935 — Signed August 14; still the cornerstone of American social safety net.",
+                type: "policy"
+            },
+            {
+                id: 6,
+                name: "FEDERAL DEPOSIT INSURANCE CORP",
+                emoji: "🔒",
+                value: 10,
+                heal: 22,
+                description: "Insures bank deposits up to $2,500 (today $250,000).",
+                fact: "Glass-Steagall Act 1933 — Ended bank runs for generations.",
+                type: "policy"
+            },
+            {
+                id: 7,
+                name: "FIRESIDE CHAT",
+                emoji: "📻",
+                value: 15,
+                heal: 10,
+                description: "President speaks directly to 60 million Americans by radio.",
+                fact: "March 12, 1933 — First chat restored public confidence in 8 minutes.",
+                type: "policy",
+                special: "draw"
+            },
+            {
+                id: 8,
+                name: "AGRICULTURAL ADJUSTMENT ACT",
+                emoji: "🌾",
+                value: 19,
+                heal: 6,
+                description: "Pays farmers to reduce production and raise prices.",
+                fact: "1933 — Farm income rose 50% in four years despite criticism.",
+                type: "policy"
+            },
+            {
+                id: 9,
+                name: "PUBLIC WORKS ADMINISTRATION",
+                emoji: "🏛️",
+                value: 24,
+                heal: 0,
+                description: "Funds Grand Coulee Dam, Golden Gate Bridge, and airports.",
+                fact: "1933–1939 — Built infrastructure worth $6 billion (equivalent to $130B today).",
+                type: "policy"
+            },
+            {
+                id: 10,
+                name: "NATIONAL INDUSTRIAL RECOVERY ACT",
+                emoji: "🏭",
+                value: 17,
+                heal: 9,
+                description: "Sets fair wages, hours, and ends child labor in industry.",
+                fact: "1933 — Created the famous Blue Eagle symbol of compliance.",
+                type: "policy"
+            },
+            {
+                id: 11,
+                name: "BONUS ARMY RESOLUTION",
+                emoji: "🇺🇸",
+                value: 14,
+                heal: 15,
+                description: "FDR pays WWI veterans their bonus 9 years early.",
+                fact: "1936 — Contrasted sharply with Hoover's violent eviction in 1932.",
+                type: "policy"
+            },
+            {
+                id: 12,
+                name: "FAIR LABOR STANDARDS ACT",
+                emoji: "⏰",
+                value: 16,
+                heal: 8,
+                description: "Establishes federal minimum wage and 40-hour work week.",
+                fact: "1938 — Final major New Deal law; ended exploitative labor practices.",
+                type: "policy"
+            }
+        ];
+
+        let aiDeck = [
+            {
+                id: 101,
+                name: "BLACK TUESDAY",
+                emoji: "📉",
+                damage: 24,
+                description: "October 29, 1929 — $14 billion lost in one day.",
+                fact: "Stock market lost 89% of its value by 1932.",
+                type: "crisis"
+            },
+            {
+                id: 102,
+                name: "BANK RUN PANIC",
+                emoji: "🏦",
+                damage: 19,
+                description: "9,000 banks fail between 1930–1933.",
+                fact: "No federal deposit insurance existed yet.",
+                type: "crisis"
+            },
+            {
+                id: 103,
+                name: "DUST BOWL",
+                emoji: "🌪️",
+                damage: 22,
+                description: "Black blizzards bury 100 million acres.",
+                fact: "1930s — Millions flee Oklahoma and Texas.",
+                type: "crisis"
+            },
+            {
+                id: 104,
+                name: "HOOVERVILLES",
+                emoji: "🏚️",
+                damage: 15,
+                description: "Shantytowns named after the president.",
+                fact: "1932 — Central Park had its own Hooverville.",
+                type: "crisis"
+            },
+            {
+                id: 105,
+                name: "25% UNEMPLOYMENT",
+                emoji: "📉",
+                damage: 26,
+                description: "13 million Americans out of work.",
+                fact: "No unemployment insurance until 1935.",
+                type: "crisis"
+            },
+            {
+                id: 106,
+                name: "SMOOT-HAWLEY TARIFF",
+                emoji: "🚢",
+                damage: 17,
+                description: "1930 tariff sparks global trade war.",
+                fact: "U.S. exports fell 61% in three years.",
+                type: "crisis"
+            },
+            {
+                id: 107,
+                name: "BONUS ARMY EVICTION",
+                emoji: "🔥",
+                damage: 14,
+                description: "Hoover orders troops against WWI veterans.",
+                fact: "July 28, 1932 — Tanks rolled through Washington D.C.",
+                type: "crisis"
+            },
+            {
+                id: 108,
+                name: "FARM FORECLOSURES",
+                emoji: "🌾",
+                damage: 20,
+                description: "One in four farms lost to banks.",
+                fact: "1933 — Farmers in Iowa declared a moratorium on debt.",
+                type: "crisis"
+            },
+            {
+                id: 109,
+                name: "BREADLINES",
+                emoji: "🍞",
+                damage: 13,
+                description: "Millions stand for free soup daily.",
+                fact: "1932 — New York City fed 1 million people per day.",
+                type: "crisis"
+            },
+            {
+                id: 110,
+                name: "1933 BANKING CRISIS",
+                emoji: "🏦",
+                damage: 23,
+                description: "40 states close banks by inauguration day.",
+                fact: "FDR declared national bank holiday March 6, 1933.",
+                type: "crisis"
+            },
+            {
+                id: 111,
+                name: "DROUGHT &amp; HEATWAVE",
+                emoji: "☀️",
+                damage: 18,
+                description: "1936 heat wave kills 5,000 people.",
+                fact: "Temperatures reached 120°F in the Midwest.",
+                type: "crisis"
+            },
+            {
+                id: 112,
+                name: "STOCK MARKET CRASH AFTERMATH",
+                emoji: "📉",
+                damage: 21,
+                description: "Industrial production falls 47%.",
+                fact: "1932 — GDP was 30% lower than 1929.",
+                type: "crisis"
+            }
+        ];
+
+        // ==================== GAME STATE ====================
+        let playerHealth = 100;
+        let depressionHealth = 100;
+        let playerHand = [];
+        let discardPile = [];
+        let cardsPlayed = 0;
+        let currentTurn = 1;
+        let recoveryScore = 0;
+        let selectedCardForPlay = null;
+        let gameOver = false;
+
+        let currentPlayerDeck = [];
+        let currentAIDeck = [];
+
+        // ==================== TAILWIND INIT ====================
+        function initTailwind() {
+            // Already loaded via CDN
+        }
+
+        // ==================== SHUFFLE ====================
+        function shuffle(array) {
+            let currentIndex = array.length;
+            while (currentIndex !== 0) {
+                let randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // ==================== RENDER HEALTH ====================
+        function updateHealthBars() {
+            const pHealth = Math.max(0, Math.min(100, playerHealth));
+            const dHealth = Math.max(0, Math.min(100, depressionHealth));
+            
+            document.getElementById("player-health").textContent = Math.floor(pHealth);
+            document.getElementById("player-health-bar").style.width = pHealth + "%";
+            
+            document.getElementById("depression-health-text").textContent = Math.floor(dHealth);
+            document.getElementById("depression-health-bar").style.width = dHealth + "%";
+        }
+
+        // ==================== CREATE CARD ELEMENT ====================
+        function createCardElement(card, isModal = false) {
+            const div = document.createElement("div");
+            div.className = `card bg-[#d4c3a3] text-black border-4 border-amber-900 rounded-3xl p-5 flex flex-col h-72 cursor-pointer ${isModal ? 'scale-110 shadow-2xl' : ''}`;
+            
+            let effectHTML = '';
+            if (card.type === "policy") {
+                effectHTML = `
+                    <div class="flex gap-x-3 text-xs">
+                        <div class="bg-emerald-700 text-white px-4 py-1 rounded-2xl flex-1 text-center">
+                            IMPACT ${card.value}
+                        </div>
+                        ${card.heal > 0 ? `<div class="bg-teal-600 text-white px-4 py-1 rounded-2xl flex-1 text-center">RECOVER ${card.heal}</div>` : ''}
+                    </div>`;
+            } else {
+                effectHTML = `
+                    <div class="bg-red-700 text-white px-4 py-1 rounded-2xl text-center text-xs">
+                        DAMAGE ${card.damage}
+                    </div>`;
+            }
+            
+            div.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="text-5xl">${card.emoji}</div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-medium tracking-widest ${card.type === 'policy' ? 'text-emerald-700' : 'text-red-700'}">
+                            ${card.type.toUpperCase()}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-auto">
+                    <div class="title-font text-2xl leading-none mb-3">${card.name}</div>
+                    <div class="text-xs leading-tight text-black/70 line-clamp-3">${card.description}</div>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-black/30">
+                    ${effectHTML}
+                </div>
+            `;
+            
+            if (!isModal) {
+                div.onclick = () => showCardModal(card);
+            }
+            
+            return div;
+        }
+
+        // ==================== RENDER PLAYER HAND ====================
+        function renderHand() {
+            const container = document.getElementById("player-hand");
+            container.innerHTML = "";
+            
+            playerHand.forEach(card => {
+                const el = createCardElement(card);
+                container.appendChild(el);
+            });
+            
+            document.getElementById("hand-count").textContent = playerHand.length;
+        }
+
+        // ==================== ADD TO LOG ====================
+        function addToLog(html) {
+            const log = document.getElementById("game-log");
+            const entry = document.createElement("div");
+            entry.className = "log-entry bg-black/30 p-4 rounded-2xl mb-3 text-xs leading-tight border-l-4 border-amber-400";
+            entry.innerHTML = html;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // ==================== DRAW CARD ====================
+        function drawCard() {
+            if (gameOver || currentPlayerDeck.length === 0) return;
+            
+            if (playerHand.length >= 5) {
+                addToLog(`<span class="text-red-400">Hand full! Play a card first.</span>`);
+                return;
+            }
+            
+            const card = currentPlayerDeck.pop();
+            playerHand.push(card);
+            renderHand();
+            document.getElementById("deck-count").textContent = currentPlayerDeck.length;
+            
+            addToLog(`<span class="text-emerald-400">Drew:</span> <strong>${card.name}</strong>`);
+        }
+
+        // ==================== SHOW CARD MODAL ====================
+        function showCardModal(card) {
+            if (gameOver) return;
+            selectedCardForPlay = card;
+            
+            const modal = document.getElementById("modal-backdrop");
+            const cardContainer = document.getElementById("modal-card");
+            
+            cardContainer.innerHTML = `
+                <div class="flex justify-center mb-6">
+                    ${createCardElement(card, true).outerHTML}
+                </div>
+                <div class="bg-black/70 text-amber-100 p-6 rounded-2xl text-sm">
+                    <div class="uppercase text-emerald-400 text-xs mb-2">HISTORICAL NOTE</div>
+                    <p class="italic">${card.fact}</p>
+                </div>
+            `;
+            
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function hideModal() {
+            const modal = document.getElementById("modal-backdrop");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            selectedCardForPlay = null;
+        }
+
+        // ==================== CONFIRM PLAY ====================
+        function confirmPlayCard() {
+            if (!selectedCardForPlay) return;
+            hideModal();
+            playCard(selectedCardForPlay);
+        }
+
+        function playCard(card) {
+            if (gameOver) return;
+            
+            // Remove from hand
+            playerHand = playerHand.filter(c => c.id !== card.id);
+            
+            // Apply effects
+            depressionHealth = Math.max(0, depressionHealth - card.value);
+            
+            let healAmount = card.heal || 0;
+            if (healAmount > 0) {
+                playerHealth = Math.min(100, playerHealth + healAmount);
+            }
+            
+            // Special abilities
+            if (card.special === "draw") {
+                if (currentPlayerDeck.length > 0) {
+                    const extra = currentPlayerDeck.pop();
+                    playerHand.push(extra);
+                    addToLog(`<span class="text-emerald-400">Fireside Chat bonus!</span> Drew extra card: ${extra.name}`);
+                }
+            }
+            
+            cardsPlayed++;
+            recoveryScore += Math.floor(card.value * 1.4);
+            
+            // Render updates
+            renderHand();
+            updateHealthBars();
+            document.getElementById("recovery-score").textContent = recoveryScore;
+            document.getElementById("cards-played-count").textContent = cardsPlayed;
+            document.getElementById("progress-bar").style.width = Math.min(100, cardsPlayed * 8) + "%";
+            
+            // Log play
+            addToLog(`
+                <span class="text-emerald-400 font-medium">ENACTED:</span> 
+                <strong>${card.emoji} ${card.name}</strong><br>
+                <span class="text-emerald-400">−${card.value} Depression Strength</span>
+                ${healAmount > 0 ? `<br><span class="text-teal-400">+${healAmount} Economy Recovery</span>` : ''}
+            `);
+            
+            // AI responds immediately
+            setTimeout(aiTurn, 700);
+            
+            // Check win
+            checkGameState();
+        }
+
+        // ==================== AI TURN ====================
+        function aiTurn() {
+            if (gameOver || currentAIDeck.length === 0) return;
+            
+            const crisis = currentAIDeck.pop();
+            
+            // Render AI played card
+            const aiContainer = document.getElementById("ai-played-card");
+            aiContainer.innerHTML = `
+                <div class="text-7xl mb-6">${crisis.emoji}</div>
+                <div class="title-font text-xl text-red-300">${crisis.name}</div>
+                <div class="text-red-400 text-xs mt-2">−${crisis.damage}</div>
+            `;
+            
+            // Apply damage
+            playerHealth = Math.max(0, playerHealth - crisis.damage);
+            
+            // Log
+            addToLog(`
+                <span class="text-red-400 font-medium">CRISIS STRIKES:</span> 
+                <strong>${crisis.emoji} ${crisis.name}</strong><br>
+                <span class="text-red-400">−${crisis.damage} to Economy</span>
+            `);
+            
+            updateHealthBars();
+            checkGameState();
+            
+            // Player draws next card
+            setTimeout(() => {
+                if (!gameOver && currentPlayerDeck.length > 0) {
+                    drawCard();
+                }
+                currentTurn++;
+                document.getElementById("turn-counter").textContent = String(currentTurn).padStart(2, '0');
+            }, 900);
+        }
+
+        // ==================== CHECK GAME STATE ====================
+        function checkGameState() {
+            if (depressionHealth <= 0) {
+                gameOver = true;
+                showWinScreen();
+            } else if (playerHealth <= 0) {
+                gameOver = true;
+                showLoseScreen();
+            } else if (currentPlayerDeck.length === 0 && playerHand.length === 0) {
+                // Out of cards
+                if (depressionHealth > 25) {
+                    gameOver = true;
+                    showLoseScreen();
+                }
+            }
+        }
+
+        function showWinScreen() {
+            const modal = document.getElementById("game-over-modal");
+            document.getElementById("game-over-icon").innerHTML = "🎉";
+            document.getElementById("game-over-title").innerHTML = "AMERICA RECOVERS!";
+            document.getElementById("game-over-subtitle").innerHTML = "The New Deal saved the nation.<br>You are the greatest President since Lincoln.";
+            
+            document.getElementById("final-score").textContent = recoveryScore;
+            document.getElementById("final-cards").textContent = cardsPlayed;
+            document.getElementById("final-turns").textContent = currentTurn;
+            document.getElementById("final-health").innerHTML = Math.floor(playerHealth) + "%";
+            
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function showLoseScreen() {
+            const modal = document.getElementById("game-over-modal");
+            document.getElementById("game-over-icon").innerHTML = "💀";
+            document.getElementById("game-over-title").innerHTML = "THE DEPRESSION WINS";
+            document.getElementById("game-over-subtitle").innerHTML = "America spirals deeper. History remembers your failure.";
+            
+            document.getElementById("final-score").textContent = recoveryScore;
+            document.getElementById("final-cards").textContent = cardsPlayed;
+            document.getElementById("final-turns").textContent = currentTurn;
+            document.getElementById("final-health").innerHTML = Math.floor(playerHealth) + "%";
+            
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function hideGameOver() {
+            const modal = document.getElementById("game-over-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        // ==================== END TURN EARLY ====================
+        function endTurnEarly() {
+            if (gameOver) return;
+            addToLog(`<span class="text-amber-400">You chose to wait...</span>`);
+            aiTurn();
+        }
+
+        // ==================== RESTART GAME ====================
+        function restartGame() {
+            hideGameOver();
+            
+            // Reset state
+            playerHealth = 100;
+            depressionHealth = 100;
+            playerHand = [];
+            discardPile = [];
+            cardsPlayed = 0;
+            currentTurn = 1;
+            recoveryScore = 0;
+            gameOver = false;
+            
+            // Reset decks
+            currentPlayerDeck = shuffle([...playerDeck]);
+            currentAIDeck = shuffle([...aiDeck]);
+            
+            // Draw starting hand
+            playerHand = currentPlayerDeck.splice(0, 3);
+            
+            // Clear log
+            document.getElementById("game-log").innerHTML = `
+                <div class="text-center text-emerald-400 py-6 text-xs">
+                    <i class="fa-solid fa-flag"></i><br>
+                    MARCH 4, 1933 — FDR INAUGURATED
+                </div>`;
+            
+            // Reset UI
+            document.getElementById("turn-counter").textContent = "01";
+            document.getElementById("recovery-score").textContent = "0";
+            document.getElementById("cards-played-count").textContent = "0";
+            document.getElementById("progress-bar").style.width = "0%";
+            document.getElementById("deck-count").textContent = currentPlayerDeck.length;
+            document.getElementById("ai-played-card").innerHTML = `
+                <div class="text-6xl mb-4 opacity-30">📉</div>
+                <p class="text-amber-400/50 text-sm">Waiting for your move...</p>
+            `;
+            
+            updateHealthBars();
+            renderHand();
+            
+            addToLog(`<span class="text-amber-300">Game started. You are Franklin D. Roosevelt.</span>`);
+        }
+
+        // ==================== RULES MODAL ====================
+        function showRules() {
+            alert(`NEW DEAL SHOWDOWN — HOW TO PLAY
+
+You are Franklin D. Roosevelt taking office in 1933.
+
+• Click any card in your hand to read its full history
+• Play policies to weaken the Depression
+• Some cards heal the economy
+• Survive  the AI's historical crises
+• Win by reducing Depression Strength to zero
+
+Every card contains real 1930s history.
+
+Built as a complete single-file game for GitHub Pages.
+Just fork it and enable Pages — instant playable history lesson!
+
+Made with love for American history.`);
+        }
+
+        // ==================== KEYBOARD SHORTCUT ====================
+        function handleKeyboard(e) {
+            if (e.key === "/" && document.getElementById("modal-backdrop").classList.contains("hidden")) {
+                showRules();
+            }
+        }
+
+        // ==================== INIT GAME ====================
+        function initializeGame() {
+            // Tailwind ready
+            initTailwind();
+            
+            // Shuffle decks
+            currentPlayerDeck = shuffle([...playerDeck]);
+            currentAIDeck = shuffle([...aiDeck]);
+            
+            // Starting hand
+            playerHand = currentPlayerDeck.splice(0, 3);
+            
+            // Initial render
+            renderHand();
+            updateHealthBars();
+            document.getElementById("deck-count").textContent = currentPlayerDeck.length;
+            
+            // Welcome log
+            const logDiv = document.getElementById("game-log");
+            logDiv.innerHTML = `
+                <div class="text-center text-emerald-400 py-6 text-xs border-b border-amber-900">
+                    <i class="fa-solid fa-flag"></i><br>
+                    MARCH 4, 1933 — FDR INAUGURATED<br>
+                    <span class="text-amber-300">"The only thing we have to fear is fear itself."</span>
+                </div>`;
+            
+            addToLog(`<span class="text-emerald-400">Your first hand is ready, Mr. President.</span>`);
+            
+            // Keyboard
+            document.addEventListener("keydown", handleKeyboard);
+            
+            // First AI tease
+            setTimeout(() => {
+                if (!gameOver) {
+                    addToLog(`<span class="text-red-300 text-xs">The Depression is watching...</span>`);
+                }
+            }, 1800);
+        }
+
+        // Auto-start
+        window.onload = initializeGame;
+    </script>
+</body>
+</html>
